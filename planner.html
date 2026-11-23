@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>แผนลงทุนคริปโตและหุ้น</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: เครื่องมือของเทรดเดอร์ ตรงไปตรงมา ตัวเลขชัด ไม่มีของตกแต่ง
+   IDEA: บันไดราคาแบบแผงเทรด แต่ละขั้นคือการตัดสินใจหนึ่งข้อ
+   PICTURE: บันไดราคาแนวตั้ง SL / เข้า / ปัจจุบัน / เป้าแต่ละขั้น / แนวรับต้าน
+   COLOUR and TYPE: พื้นมืดเสมอ เขียว=ซื้อ/กำไร แดง=ขาย/เสี่ยง ฟ้า/ทอง=จุดเน้น · IBM Plex Sans Thai
+   LAYOUT: แถบสรุปบนสุด แท็บตามขั้นงาน ซ้ายกรอก ขวาผล มือถือเรียงลง */
+:root{color-scheme:dark;--bg:#0b0f14;--pn:#121922;--pn2:#18212d;--ln:#243243;--ink:#e7edf4;--mu:#8fa0b4;--g:#2fd27a;--gd:#163b28;--r:#ff5c5c;--rd:#3d1a1d;--c:#4cc3ff;--y:#f4bd45;--yd:#3a2e12}
+*{box-sizing:border-box;min-width:0}
+html{scroll-padding-top:72px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "IBM Plex Sans Thai",system-ui,sans-serif;overflow-x:clip;font-variant-numeric:tabular-nums}
+button,input,select,textarea{font:inherit;color:inherit}
+header{position:sticky;top:0;z-index:20;background:rgba(11,15,20,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--ln)}
+.hd{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;padding:10px max(3vw,12px)}
+.hd h1{font-size:19px;margin:0;font-weight:700;line-height:1.2}
+.hd h1 b{color:var(--y);font-weight:700}
+.hd .sp{flex:1}
+.hd select{max-width:220px}
+.saved{font-size:13px;color:var(--mu)}
+nav{display:flex;gap:4px;overflow-x:auto;padding:0 max(3vw,12px) 8px;scrollbar-width:none}
+nav button{flex:none;background:none;border:1px solid transparent;border-radius:999px;padding:7px 14px;min-height:40px;color:var(--mu);cursor:pointer;font-weight:500}
+nav button.on{background:var(--pn2);border-color:var(--ln);color:var(--ink)}
+main{max-width:1240px;margin:0 auto;padding:14px max(3vw,12px) 40px}
+.strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:var(--pn);border:1px solid var(--ln);border-radius:12px;padding:10px 14px}
+.kpi small{display:block;color:var(--mu);font-size:13px}
+.kpi strong{font-size:clamp(18px,2.3vw,24px);line-height:1.25;white-space:nowrap;display:block;overflow:hidden;text-overflow:ellipsis}
+.kpi em{font-style:normal;font-size:13px;color:var(--mu)}
+.sig-buy{border-color:var(--g);background:var(--gd)}.sig-buy strong{color:var(--g)}
+.sig-sell{border-color:var(--r);background:var(--rd)}.sig-sell strong{color:var(--r)}
+.sig-mix{border-color:var(--y);background:var(--yd)}.sig-mix strong{color:var(--y)}
+.tab{display:none}.tab.on{display:block}
+.grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:14px;align-items:start}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
+.card{background:var(--pn);border:1px solid var(--ln);border-radius:14px;padding:14px;margin-bottom:14px}
+.card h2{font-size:18px;margin:0 0 4px;line-height:1.3}
+.card h3{font-size:16px;margin:14px 0 6px}
+.note{color:var(--mu);font-size:14px;margin:0 0 10px}
+.fs{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px 10px}
+.f{display:flex;flex-direction:column;gap:2px}
+.f>span{font-size:13px;color:var(--mu)}
+input[type=number],input[type=text],select,textarea{background:var(--bg);border:1px solid var(--ln);border-radius:9px;padding:8px 10px;min-height:42px;font-size:16px;width:100%}
+textarea{min-height:120px;font-size:14px}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--c);outline-offset:1px}
+.row{display:flex;gap:10px;align-items:flex-start;background:var(--pn2);border:1px solid var(--ln);border-radius:12px;padding:10px;margin-bottom:8px}
+.row.off{opacity:.5}
+.row.off .rf input,.row.off .rf select{border-style:dashed}
+.rf{flex:1;display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:6px 8px}
+.rf .w2{grid-column:span 2}
+.rf .full{grid-column:1/-1}
+.tg{position:relative;flex:none;width:46px;height:28px;margin-top:6px;cursor:pointer}
+.tg input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer;z-index:1;width:100%;height:100%}
+.tg span{position:absolute;inset:0;border-radius:99px;background:#2b3746;transition:.15s}
+.tg span::after{content:"";position:absolute;width:22px;height:22px;top:3px;left:3px;border-radius:50%;background:#c7d2de;transition:.15s}
+.tg input:checked+span{background:var(--g)}
+.tg input:checked+span::after{left:21px;background:#fff}
+.tg input:focus-visible+span{outline:2px solid var(--c);outline-offset:2px}
+.sw{display:flex;align-items:center;gap:10px;min-height:44px}
+.sw .tg{margin:0}
+.x,.ib{flex:none;width:36px;height:36px;border-radius:9px;border:1px solid var(--ln);background:none;color:var(--mu);cursor:pointer;font-size:18px;line-height:1}
+.x:hover{color:var(--r);border-color:var(--r)}
+.side{display:flex;flex-direction:column;gap:4px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:42px;padding:8px 14px;border-radius:10px;border:1px solid var(--ln);background:var(--pn2);cursor:pointer;font-weight:500}
+.btn.add{border-style:dashed;color:var(--c);width:100%}
+.btn.pri{background:var(--c);color:#04121c;border-color:var(--c)}
+.btn.dan{color:var(--r);border-color:#5b2a2d}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.chip{display:inline-block;font-size:13px;border-radius:8px;padding:3px 8px;background:#0e141b;border:1px solid var(--ln);color:var(--mu);white-space:nowrap}
+.rf .chip{align-self:end;justify-self:start;white-space:normal}
+.ok{color:var(--g);border-color:#22553a}.bad{color:var(--r);border-color:#5b2a2d}.hi{color:var(--y);border-color:#5a4718}
+.pos{color:var(--g)}.neg{color:var(--r)}.cy{color:var(--c)}.gold{color:var(--y)}
+.warn{background:var(--rd);border:1px solid #6a2a2e;color:#ffc9c9;border-radius:10px;padding:8px 12px;font-size:14px;margin:8px 0}
+.tot{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.fig{position:relative;min-height:420px;background:var(--bg);border:1px solid var(--ln);border-radius:12px}
+.fig>svg{position:absolute;inset:0;width:100%;height:100%}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:7px 8px;border-bottom:1px solid var(--ln);text-align:right;white-space:nowrap}
+th{color:var(--mu);font-weight:500;font-size:13px}
+th:first-child,td:first-child{text-align:left}
+tr.use td{background:#10202c}
+.big{font-size:clamp(20px,2.6vw,30px);font-weight:700;line-height:1.15;overflow-wrap:anywhere}
+.res{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
+.pc{background:var(--pn2);border:1px solid var(--ln);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.pc.off{opacity:.55}
+.pc svg{width:100%;height:auto;background:var(--bg);border-radius:10px}
+.pch{display:flex;gap:8px;align-items:center}
+.pch input[type=text]{font-weight:600}
+.kv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 10px;font-size:14px}
+.kv b{font-weight:600;white-space:nowrap}
+.filt{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.filt button{min-height:38px;padding:4px 12px;border-radius:99px;border:1px solid var(--ln);background:none;color:var(--mu);cursor:pointer}
+.filt button.on{background:var(--pn2);color:var(--ink);border-color:var(--c)}
+.plist .row .rf{grid-template-columns:repeat(auto-fill,minmax(110px,1fr))}
+.prof{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px;border:1px solid var(--ln);border-radius:12px;margin-bottom:8px;background:var(--pn2)}
+.prof.act{border-color:var(--y)}
+.prof input{flex:1 1 180px}
+.disc{max-width:1240px;margin:0 auto;padding:0 max(3vw,12px) 40px;color:var(--mu);font-size:13px}
+.disc p{border-top:1px solid var(--ln);padding-top:14px;margin:0}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--pn2);border:1px solid var(--c);padding:10px 16px;border-radius:12px;z-index:50;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw}
+.toast.on{opacity:1}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:60;padding:16px}
+.modal.on{display:flex}
+.modal>div{background:var(--pn);border:1px solid var(--ln);border-radius:14px;padding:18px;max-width:420px;width:100%}
+.checks{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:4px 12px;margin:8px 0}
+.checks label{display:flex;gap:8px;align-items:center;min-height:36px}
+.checks input{width:20px;height:20px;accent-color:var(--g)}
+.live-dot{font-size:13px;border-radius:99px;padding:4px 10px;border:1px solid var(--ln);color:var(--mu);white-space:nowrap}
+.live-dot.ok{color:var(--g);border-color:#22553a}.live-dot.err{color:var(--r);border-color:#5b2a2d}.live-dot.load{color:var(--c)}
+.lv-big{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:12px}
+.lv-big .kpi strong{white-space:normal}
+input[readonly]{color:var(--y);border-style:dotted}
+pre{background:var(--bg);border:1px solid var(--ln);border-radius:10px;padding:10px;font-size:12px;max-height:320px;overflow:auto;white-space:pre}
+ol.steps{padding-left:20px;margin:6px 0}ol.steps li{margin-bottom:4px}
+.empty{color:var(--mu);font-size:14px;padding:10px;border:1px dashed var(--ln);border-radius:10px;text-align:center}
+@media(max-width:900px){.grid,.g2{grid-template-columns:minmax(0,1fr)}.strip{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.hd h1{font-size:17px}.hd select{max-width:150px}.rf{grid-template-columns:repeat(2,minmax(0,1fr))}.rf .w2{grid-column:1/-1}.fig{min-height:380px}table{font-size:13px}.saved{display:none}.kpi strong{white-space:normal;font-size:17px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="hd">
+    <h1>แผนลงทุน <b>คริปโต & หุ้น</b></h1>
+    <span class="sp"></span>
+    <label class="f" style="flex-direction:row;align-items:center;gap:6px"><span class="note" style="margin:0;white-space:nowrap">ชุดค่า</span><select id="profSel" aria-label="เลือกชุดค่า"></select></label>
+    <button class="live-dot" id="liveDot" data-act="goLive">ราคาสด ปิด</button>
+    <span class="saved" id="saved">บันทึกอัตโนมัติ</span>
+  </div>
+  <nav id="nav">
+    <button data-tab="calc" class="on">คำนวณ</button>
+    <button data-tab="live">ราคาสด</button>
+    <button data-tab="setup">พอร์ต · SL · ขั้นขาย</button>
+    <button data-tab="rules">เงื่อนไขซื้อ/ขาย</button>
+    <button data-tab="dca">แบ่งไม้ DCA</button>
+    <button data-tab="pat">แพตเทิร์น</button>
+    <button data-tab="plan">แผน & Watchlist</button>
+    <button data-tab="data">ชุดค่า & ไฟล์</button>
+  </nav>
+</header>
+
+<main>
+  <div class="strip" id="strip"></div>
+
+  <section class="tab on" id="t-calc">
+    <div class="grid">
+      <div>
+        <div class="card">
+          <h2>สินทรัพย์</h2>
+          <div class="fs" id="assetF"></div>
+          <div class="btns" style="align-items:center"><span class="chip" id="liveAsset" style="white-space:normal"></span></div>
+        </div>
+        <div class="card">
+          <h2>แนวรับ</h2><p class="note">เปิดเฉพาะแนวที่ใช้ แนวที่ปิดจะไม่ถูกนำไปคิด SL หรือเงื่อนไข</p>
+          <div id="ed-supports"></div>
+          <button class="btn add" data-act="add" data-list="supports">+ เพิ่มแนวรับ</button>
+        </div>
+        <div class="card">
+          <h2>แนวต้าน</h2>
+          <div id="ed-resistances"></div>
+          <button class="btn add" data-act="add" data-list="resistances">+ เพิ่มแนวต้าน</button>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <h2>บันไดราคา</h2>
+          <p class="note">คิดจากค่าที่เปิดไว้เท่านั้น · แดง = SL/แนวต้าน · เขียว = เป้าขาย/แนวรับ · ฟ้า = ราคาเข้า · ทอง = ราคาปัจจุบัน</p>
+          <div class="fig" id="ladder"><svg id="ladSvg" role="img" aria-label="บันไดราคา"></svg></div>
+        </div>
+        <div class="card" id="posOut"></div>
+        <div class="card" id="tierOut"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="tab" id="t-live">
+    <div class="card">
+      <h2>ราคาสด</h2>
+      <p class="note" id="liveWhere">ใช้ได้เมื่อเปิดจากไฟล์ planner.html ในเครื่อง หรือจากเว็บของคุณเอง (เช่น GitHub Pages) · ลิงก์หน้าเว็บใน Claude ถูกบล็อกไม่ให้ต่อเว็บอื่น</p>
+      <div id="liveBoard"></div>
+      <div class="btns"><button class="btn pri" data-act="liveNow">ดึงราคาตอนนี้</button><button class="btn" data-act="useGold" data-v="goldth">ใช้ทองไทยในหน้าคำนวณ</button><button class="btn" data-act="useGold" data-v="gold">ใช้ทองโลกในหน้าคำนวณ</button></div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <h2>ตั้งค่าการดึงราคา</h2>
+        <div class="fs" id="liveF"></div>
+        <h3>ทองไทย (ประมาณจากทองโลก)</h3>
+        <p class="note">บาทละ = ทองโลก (USD/ออนซ์) × ค่าเงินบาท ÷ 31.1035 × 15.244 กรัม × ความบริสุทธิ์ + ส่วนปรับ · เป็นราคาประมาณ ไม่ใช่ราคาประกาศสมาคมค้าทองคำ ปรับส่วนปรับให้ตรงกับราคาร้านที่คุณใช้ได้</p>
+        <div class="fs" id="goldF"></div>
+      </div>
+      <div class="card">
+        <h2>ตัวกลางสำหรับหุ้นไทย (ทำครั้งเดียว)</h2>
+        <p class="note">หุ้นไทยไม่มีแหล่งฟรีที่เบราว์เซอร์ดึงตรงได้ จึงต้องมีฟังก์ชันเล็ก ๆ บน Supabase ไปดึงจาก Yahoo Finance ให้ (ราคาหุ้นไทยล่าช้าประมาณ 15 นาที) ใช้กับหุ้นสหรัฐฯ ทองฟิวเจอร์ส และค่าเงินได้ด้วย</p>
+        <ol class="steps">
+          <li>Supabase → Edge Functions → Deploy a new function → Via Editor</li>
+          <li>ตั้งชื่อ <b>ivp-quote</b> วางโค้ดด้านล่าง แล้วกด Deploy</li>
+          <li>ในหน้าตั้งค่าฟังก์ชัน ปิด Verify JWT (หรือเปิดไว้แล้วใส่ anon key ในช่องคีย์พร็อกซี)</li>
+          <li>คัดลอก URL ฟังก์ชัน เช่น https://xxxx.supabase.co/functions/v1/ivp-quote มาใส่ช่อง "URL พร็อกซี"</li>
+        </ol>
+        <details><summary class="btn" style="width:100%">ดูโค้ด Edge Function</summary><pre id="edgeShow"></pre><button class="btn" data-act="copyEdge">คัดลอกโค้ด</button></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="tab" id="t-setup">
+    <div class="card">
+      <h2>พอร์ตและความเสี่ยง</h2>
+      <div class="fs" id="portF"></div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <h2>จุดตัดขาดทุน (Stop-Loss)</h2>
+        <p class="note">เพิ่มได้หลายแบบ เปิดตัวที่ต้องการ แล้วเลือกวิธีใช้เมื่อเปิดหลายตัว</p>
+        <div class="fs" id="slPickF" style="margin-bottom:10px"></div>
+        <div id="ed-stops"></div>
+        <button class="btn add" data-act="add" data-list="stops">+ เพิ่ม Stop-Loss</button>
+      </div>
+      <div class="card">
+        <h2>ขั้นการขายทำกำไร</h2>
+        <p class="note">% ขาย คิดจากจำนวนที่ซื้อทั้งหมด (รวมกันต้องไม่เกิน 100%) · % ดึงกำไร คิดจากกำไรของขั้นนั้น (แต่ละขั้นไม่เกิน 100%) · เรียงขั้นด้วยปุ่ม ↑↓</p>
+        <div class="tot" id="tierTot"></div>
+        <div id="ed-tiers"></div>
+        <button class="btn add" data-act="add" data-list="tiers">+ เพิ่มขั้นขาย</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="tab" id="t-rules">
+    <div class="card">
+      <h2>สรุปสัญญาณ</h2>
+      <div class="fs" id="sigF"></div>
+      <div id="sigOut" style="margin-top:10px"></div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <h2 class="pos">เงื่อนไขฝั่งซื้อ</h2>
+        <div id="ed-buyRules"></div>
+        <button class="btn add" data-act="add" data-list="buyRules">+ เพิ่มเงื่อนไขซื้อ</button>
+      </div>
+      <div class="card">
+        <h2 class="neg">เงื่อนไขฝั่งขาย / ระวัง</h2>
+        <div id="ed-sellRules"></div>
+        <button class="btn add" data-act="add" data-list="sellRules">+ เพิ่มเงื่อนไขขาย</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="tab" id="t-dca">
+    <div class="card">
+      <h2>ตั้งค่า DCA</h2>
+      <div class="fs" id="dcaF"></div>
+      <div class="btns"><button class="btn" data-act="dcaFromPos">ใช้มูลค่าไม้จากหน้าคำนวณเป็นงบ</button></div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <h2 class="pos">ไม้ซื้อ</h2>
+        <p class="note">% ส่วนต่าง = ต่ำกว่าราคาฐานกี่ % · สัดส่วน % = ส่วนของงบ</p>
+        <div class="tot" id="dcaTot"></div>
+        <div id="ed-dca.entries"></div>
+        <button class="btn add" data-act="add" data-list="dca.entries">+ เพิ่มไม้ซื้อ</button>
+      </div>
+      <div class="card">
+        <h2 class="neg">ไม้ขายคืน</h2>
+        <p class="note">% = สูงกว่าต้นทุนเฉลี่ยกี่ % · % ขาย คิดจากจำนวนที่ซื้อได้ทั้งหมด</p>
+        <div id="ed-dca.exits"></div>
+        <button class="btn add" data-act="add" data-list="dca.exits">+ เพิ่มไม้ขาย</button>
+      </div>
+    </div>
+    <div class="card" id="dcaOut"></div>
+  </section>
+
+  <section class="tab" id="t-pat">
+    <div class="card">
+      <h2>คลังแพตเทิร์น</h2>
+      <p class="note">เป้าขาขึ้น = จุดเบรก + ความสูง × ตัวคูณ · ขาลง = จุดเบรก − ความสูง × ตัวคูณ · แพตเทิร์นที่เปิดไว้ใช้กับ SL แบบแพตเทิร์นและเงื่อนไขแพตเทิร์น · รูปจุดกราฟพิมพ์ตัวเลข 0–100 คั่นด้วยจุลภาค</p>
+      <div class="pgrid" id="ed-patterns"></div>
+      <div class="btns"><button class="btn add" data-act="add" data-list="patterns">+ เพิ่มแพตเทิร์นของตัวเอง</button><button class="btn" data-act="patDefaults">เติมแพตเทิร์นมาตรฐานที่ลบไป</button></div>
+    </div>
+  </section>
+
+  <section class="tab" id="t-plan">
+    <div class="card">
+      <h2>แผนการลงทุน / Watchlist</h2>
+      <p class="note">ติ๊กเลือกรายการเพื่อรวมยอดด้านล่าง · กรองตามสถานะได้</p>
+      <div class="filt" id="planFilt"></div>
+      <div class="tot" id="planTot"></div>
+      <div class="plist" id="ed-plan"></div>
+      <div class="btns"><button class="btn add" style="width:auto;flex:1" data-act="add" data-list="plan">+ เพิ่มสินทรัพย์</button><button class="btn" data-act="planFromCalc">เพิ่มจากหน้าคำนวณ</button></div>
+    </div>
+  </section>
+
+  <section class="tab" id="t-data">
+    <div class="g2">
+      <div>
+        <div class="card">
+          <h2>ชุดการตั้งค่า</h2>
+          <p class="note">แก้ค่าที่ไหนก็บันทึกเข้าชุดที่ใช้อยู่ทันที</p>
+          <div id="profList"></div>
+          <div class="fs" style="margin-top:10px">
+            <label class="f"><span>สร้างชุดใหม่จาก</span><select id="newFrom"><option value="blank">ชุดว่าง</option><option value="crypto">ตัวอย่าง: คริปโตสายสวิง</option><option value="stock">ตัวอย่าง: หุ้น DCA</option><option value="safe">ตัวอย่าง: ระมัดระวังสูง</option></select></label>
+            <label class="f"><span>ชื่อชุด</span><input type="text" id="newName" placeholder="เช่น แผนพอร์ตหลัก"></label>
+          </div>
+          <div class="btns"><button class="btn pri" data-act="profNew">สร้างชุดใหม่</button><button class="btn" data-act="profSample">โหลดค่าตัวอย่างทับชุดนี้</button></div>
+        </div>
+        <div class="card">
+          <h2>ดึงบางส่วนจากชุดอื่น</h2>
+          <p class="note">ติ๊กเลือกส่วนที่จะคัดลอกมาทับในชุดที่ใช้อยู่</p>
+          <label class="f"><span>จากชุด</span><select id="mixFrom"></select></label>
+          <div class="checks" id="mixChecks"></div>
+          <button class="btn" data-act="mix">คัดลอกส่วนที่เลือก</button>
+        </div>
+      </div>
+      <div class="card">
+        <h2>ส่งออก / นำเข้า JSON</h2>
+        <p class="note">ข้อมูลเก็บในเบราว์เซอร์เครื่องนี้ (LocalStorage) · กดคัดลอก JSON ไปเก็บไว้เป็นไฟล์สำรอง หรือย้ายไปเครื่องอื่น</p>
+        <textarea id="jsonOut" readonly aria-label="JSON ส่งออก"></textarea>
+        <div class="btns"><button class="btn pri" data-act="copyJson">คัดลอก JSON ทั้งหมด</button></div>
+        <h3>นำเข้า</h3>
+        <input type="file" id="fileIn" accept=".json,application/json" style="margin-bottom:8px">
+        <textarea id="jsonIn" placeholder="หรือวาง JSON ที่นี่" aria-label="JSON นำเข้า"></textarea>
+        <div class="btns"><button class="btn" data-act="impAdd">นำเข้าเป็นชุดเพิ่ม</button><button class="btn dan" data-act="impReplace">นำเข้าแทนที่ทั้งหมด</button></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="disc"><p>เครื่องมือนี้ช่วยคำนวณและจัดระเบียบแผนตามเงื่อนไขที่ผู้ใช้กำหนดเองเท่านั้น ไม่ใช่คำแนะนำการลงทุนทางการเงิน ไม่ดึงราคาตลาดจริง ตัวเลขทั้งหมดมาจากที่คุณกรอก ค่าตัวอย่างเป็นตัวเลขสมมติ การลงทุนมีความเสี่ยง ควรศึกษาข้อมูลและตัดสินใจด้วยตนเอง</p></div>
+<div class="toast" id="toast" role="status"></div>
+<div class="modal" id="modal"><div><p id="mMsg"></p><div class="btns"><button class="btn dan" id="mYes">ยืนยัน</button><button class="btn" id="mNo">ยกเลิก</button></div></div></div>
+
+<script type="text/plain" id="edgeCode">// Supabase Edge Function: ivp-quote
+// ตัวกลางดึงราคาจาก Yahoo Finance (หุ้นไทย .BK, หุ้นสหรัฐฯ, ทองฟิวเจอร์ส GC=F, ค่าเงิน THB=X)
+// เรียก: GET /functions/v1/ivp-quote?symbol=PTT.BK&interval=1d&range=6mo
+// คืน: { symbol, price, prevClose, currency, time, exchange, closes: number[] }
+// หมายเหตุ: ราคาหุ้นไทยจาก Yahoo มักล่าช้าประมาณ 15 นาที
+
+const CORS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
+};
+const INTERVALS = ["1h", "1d", "1wk"];
+const RANGES = ["5d", "1mo", "3mo", "6mo", "1y", "2y"];
+const cache = new Map<string, { t: number; body: string }>();
+
+function json(o: unknown, status = 200) {
+  return new Response(JSON.stringify(o), {
+    status,
+    headers: { ...CORS, "content-type": "application/json" },
+  });
+}
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
+  const u = new URL(req.url);
+  const symbol = (u.searchParams.get("symbol") || "").trim().toUpperCase();
+  const interval = INTERVALS.includes(u.searchParams.get("interval") || "")
+    ? u.searchParams.get("interval")!
+    : "1d";
+  const range = RANGES.includes(u.searchParams.get("range") || "")
+    ? u.searchParams.get("range")!
+    : "6mo";
+  if (!/^[A-Z0-9.=^\-]{1,20}$/.test(symbol)) return json({ error: "bad_symbol" }, 400);
+
+  const key = `${symbol}|${interval}|${range}`;
+  const hit = cache.get(key);
+  if (hit && Date.now() - hit.t < 15000) {
+    return new Response(hit.body, { headers: { ...CORS, "content-type": "application/json" } });
+  }
+
+  try {
+    const r = await fetch(
+      `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=${interval}&range=${range}`,
+      { headers: { "User-Agent": "Mozilla/5.0 (ivp-quote)" } },
+    );
+    if (!r.ok) return json({ error: "upstream_" + r.status }, 502);
+    const j = await r.json();
+    const res = j?.chart?.result?.[0];
+    if (!res?.meta?.regularMarketPrice) return json({ error: "not_found" }, 404);
+    const m = res.meta;
+    const closes = (res.indicators?.quote?.[0]?.close || []).filter((x: number | null) => x != null);
+    const body = JSON.stringify({
+      symbol: m.symbol,
+      price: m.regularMarketPrice,
+      prevClose: m.chartPreviousClose ?? m.previousClose ?? null,
+      currency: m.currency,
+      time: m.regularMarketTime,
+      exchange: m.exchangeName,
+      closes,
+    });
+    if (cache.size > 500) cache.clear();
+    cache.set(key, { t: Date.now(), body });
+    return new Response(body, { headers: { ...CORS, "content-type": "application/json" } });
+  } catch (_e) {
+    return json({ error: "fetch_failed" }, 502);
+  }
+});
+</script>
+<script>
+{
+const KEY='ivp-planner-v1';
+const uid=()=>Math.random().toString(36).slice(2,9);
+const clone=o=>JSON.parse(JSON.stringify(o));
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num=v=>(v===null||v===''||v===undefined||isNaN(+v))?null:+v;
+const rnd=x=>x>=100?Math.round(x):+x.toFixed(x>=1?2:6);
+const $=id=>document.getElementById(id);
+
+/* ---------- ข้อมูลตั้งต้น ---------- */
+const SHAPES={
+ dbl_bottom:{n:'Double Bottom',k:'bull',pts:[70,40,15,45,62,45,15,40,62,88],nk:62},
+ inv_hs:{n:'Inverse Head & Shoulders',k:'bull',pts:[72,45,28,52,8,52,28,48,60,88],nk:55},
+ asc_tri:{n:'Ascending Triangle',k:'bull',pts:[20,62,35,62,45,62,53,62,58,88],nk:62},
+ fall_wedge:{n:'Falling Wedge',k:'bull',pts:[85,55,66,44,54,36,44,32,40,72],nk:42},
+ dbl_top:{n:'Double Top',k:'bear',pts:[30,60,85,55,38,55,85,60,38,12],nk:38},
+ hs:{n:'Head & Shoulders',k:'bear',pts:[28,55,72,48,92,48,72,52,42,12],nk:45},
+ channel:{n:'Channel ขาขึ้น',k:'bull',pts:[15,40,25,50,35,60,45,70,55,80],nk:null}
+};
+const CAUTION={dbl_bottom:'ปิดกลับใต้คอหลังเบรก = เบรกหลอก ลดขนาดหรือออก',inv_hs:'ไหล่ขวาไม่ควรต่ำกว่าหัว ปริมาณควรเพิ่มตอนเบรกคอ',asc_tri:'เบรกด้วยปริมาณต่ำมักกลับเข้ากรอบ',fall_wedge:'รอปิดเหนือเส้นแนวโน้มบน ไม่รับระหว่างลิ่มยังลง',dbl_top:'หลุดคอ = โซนขาย/ระวัง',hs:'หลุดคอ = ระวัง รีเทสต์คอจากด้านล่างมักเป็นจุดขาย',channel:'ซื้อใกล้ขอบล่าง ขายใกล้ขอบบน หลุดขอบล่าง = ออก'};
+const PAT_BASE={dbl_bottom:[1.04,.08,.95],inv_hs:[1.05,.10,.97],asc_tri:[1.06,.07,.99],fall_wedge:[1.02,.09,.95],dbl_top:[.96,.08,1.05],hs:[.95,.10,1.04],channel:[.98,.10,.95]};
+function builtinPatterns(b,onKey){return Object.keys(SHAPES).map(k=>{const s=SHAPES[k],m=PAT_BASE[k];return{id:uid(),on:k===onKey,name:s.n,kind:s.k,shape:k,pts:'',breakout:rnd(b*m[0]),height:rnd(b*m[1]),sl:rnd(b*m[2]),mult:1,caution:CAUTION[k]}})}
+function blank(){return{currency:'USD',curCustom:'',capital:10000,riskPct:1,useRisk:true,allocPct:20,useCap:false,capPct:30,stopPick:'tight',sigMode:'ratio',sigThr:60,
+ asset:{name:'',entry:null,current:null,useCur:false,rsi:null,rsiPrev:null,trend:'side',src:'manual',sym:'',liveRsi:true},
+ supports:[],resistances:[],stops:[{id:uid(),on:true,type:'pct',value:5,label:''}],tiers:[],buyRules:[],sellRules:[],
+ dca:{budget:null,baseMode:'entry',base:null,entries:[],exits:[]},patterns:builtinPatterns(100,null),plan:[],planFilter:'all'}}
+const lv=(price,label,on=true)=>({id:uid(),on,price,label});
+const st=(type,value,on=true,label='')=>({id:uid(),on,type,value,label});
+const tr=(name,mode,value,sellPct,extractPct,move,moveVal=null,on=true)=>({id:uid(),on,name,mode,value,sellPct,extractPct,move,moveVal});
+const ru=(type,value,on=true,label='',met=false)=>({id:uid(),on,type,value,label,met});
+const de=(mode,value,alloc,on=true)=>({id:uid(),on,mode,value,alloc});
+const dx=(mode,value,sellPct,on=true)=>({id:uid(),on,mode,value,sellPct});
+const pl=(sym,type,entry,current,sl,target,qty,status,note='',on=true,src='manual')=>({id:uid(),on,sym,type,entry,current,sl,target,qty,status,note,src});
+function sample(kind){
+ const d=blank();
+ if(kind==='stock'){
+  Object.assign(d,{currency:'THB',capital:200000,riskPct:.5,useCap:true,capPct:25});
+  d.asset={name:'หุ้น A',entry:34.25,current:33.75,useCur:false,rsi:41,rsiPrev:38,trend:'up',src:'manual',sym:'',liveRsi:true};
+  d.supports=[lv(33,'ฐานเดือน'),lv(32,'แนวรับใหญ่')];d.resistances=[lv(36,'ยอดเดิม'),lv(38,'แนวต้านปี')];
+  d.patterns=builtinPatterns(34,'asc_tri');
+  d.stops=[st('pct',7),st('support',1.5),st('pattern',d.patterns[2].id,false)];
+  d.tiers=[tr('ขั้น 1','pct',10,25,30,'be'),tr('ขั้น 2','pct',20,25,50,'prev'),tr('ขั้น 3','pct',35,25,100,'prev'),tr('ถือยาว','pct',60,25,100,'none',null,false)];
+  d.buyRules=[ru('rsi_below',45),ru('near_support',3),ru('trend','up'),ru('manual',null,true,'งบเดือนนี้เข้าแล้ว',true)];
+  d.sellRules=[ru('rsi_above',70),ru('near_resist',1.5),ru('stop_hit',null)];
+  d.dca={budget:60000,baseMode:'entry',base:null,entries:[de('pct',0,20),de('pct',3,20),de('pct',6,20),de('pct',9,20),de('pct',12,20)],exits:[dx('pct',15,50),dx('pct',30,50)]};
+  d.plan=[pl('หุ้น A','stock',34.25,33.75,31.8,40,1500,'holding','ตัวอย่าง'),pl('หุ้น B','stock',12.4,12.9,11.5,15,0,'watch','รอย่อเข้าแนวรับ'),pl('กองทุน C','stock',10.1,10.6,null,null,5000,'holding','DCA ทุกเดือน'),pl('ทองแท่งไทย','other',null,null,null,null,null,'watch','ราคาสดแบบประมาณ',true,'goldth')];
+  return d;
+ }
+ d.asset={name:'BTC',entry:62000,current:61500,useCur:false,rsi:34,rsiPrev:28,trend:'side',src:'manual',sym:'',liveRsi:true};
+ d.supports=[lv(60000,'ฐานกรอบ'),lv(58500,'แนวรับสัปดาห์'),lv(55000,'แนวรับใหญ่',false)];
+ d.resistances=[lv(66000,'ยอดกรอบ'),lv(70000,'ยอดเดิม')];
+ d.patterns=builtinPatterns(62000,'dbl_bottom');
+ d.stops=[st('pct',5),st('support',1),st('price',57000,false),st('pattern',d.patterns[0].id,false)];
+ d.tiers=[tr('TP1','rr',1.5,30,50,'be'),tr('TP2','rr',3,30,50,'prev'),tr('TP3','pct',25,20,100,'prev'),tr('Runner','price',90000,20,100,'none',null,false)];
+ d.buyRules=[ru('rsi_below',35),ru('rsi_cross_up',30),ru('near_support',3),ru('trend','up',false),ru('manual',null,true,'ปริมาณซื้อขายเพิ่ม',false)];
+ d.sellRules=[ru('rsi_above',70),ru('near_resist',2),ru('hit_tier',null),ru('stop_hit',null),ru('trend','down',false)];
+ d.dca={budget:3000,baseMode:'entry',base:null,entries:[de('pct',0,25),de('pct',5,25),de('pct',10,25),de('pct',15,25,false)],exits:[dx('pct',10,50),dx('pct',25,50)]};
+ d.plan=[pl('BTC','crypto',62000,61500,58900,70000,0.05,'waiting','รอเข้าโซนแนวรับ'),pl('ETH','crypto',3000,3150,2820,3600,1.2,'holding','ถือจากไม้ DCA'),pl('SOL','crypto',140,152,128,180,0,'watch','',true,'crypto')];
+ if(kind==='safe'){
+  Object.assign(d,{riskPct:.5,useCap:true,capPct:15,sigMode:'all'});
+  d.tiers=[tr('TP1','rr',1,40,60,'be'),tr('TP2','rr',2,40,60,'prev'),tr('Runner','rr',4,20,100,'prev')];
+  d.stops[1].on=true;d.stops[0].value=3;
+ }
+ return d;
+}
+
+/* ---------- สถานะ / บันทึก ---------- */
+let S;
+try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){S=null}
+if(!S||!Array.isArray(S.profiles)||!S.profiles.length){S={active:null,tab:'calc',profiles:[{id:uid(),name:'คริปโตสายสวิง',data:sample('crypto')},{id:uid(),name:'หุ้น DCA',data:sample('stock')},{id:uid(),name:'ระมัดระวังสูง',data:sample('safe')}]};S.active=S.profiles[0].id}
+let D;
+function fixData(d){const b=blank();for(const k in b){if(d[k]===undefined)d[k]=clone(b[k])}for(const k in b.asset)if(d.asset[k]===undefined)d.asset[k]=b.asset[k];for(const k in b.dca)if(d.dca[k]===undefined)d.dca[k]=clone(b.dca[k]);d.plan.forEach(p=>{if(!p.src)p.src='manual'});return d}
+function setActive(id){const p=S.profiles.find(p=>p.id===id)||S.profiles[0];S.active=p.id;D=fixData(p.data)}
+setActive(S.active);
+let saveT;
+function save(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(S));$('saved').textContent='บันทึกแล้ว '+new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})}catch(e){$('saved').textContent='บันทึกในเครื่องไม่ได้'}},700)}
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),2200)}
+function ask(msg){return new Promise(res=>{$('mMsg').textContent=msg;$('modal').classList.add('on');const done=v=>{$('modal').classList.remove('on');$('mYes').onclick=$('mNo').onclick=null;res(v)};$('mYes').onclick=()=>done(true);$('mNo').onclick=()=>done(false)})}
+
+/* ---------- รูปแบบตัวเลข ---------- */
+function cur(){return D.currency==='custom'?(D.curCustom||''):D.currency}
+function fp(p){if(p===null||p===undefined||!isFinite(p))return '–';const a=Math.abs(p);const o=a>=1000?{maximumFractionDigits:2}:a>=1?{minimumFractionDigits:2,maximumFractionDigits:4}:{maximumSignificantDigits:6};return p.toLocaleString('en-US',o)}
+function fm(v){if(v===null||v===undefined||!isFinite(v))return '–';const c=cur(),s=Math.abs(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});const sg=v<0?'−':'';if(c==='USD')return sg+'$'+s;if(c==='THB')return sg+'฿'+s;return sg+s+(c?' '+c:'')}
+function fu(u){if(u===null||!isFinite(u))return '–';const a=Math.abs(u);return u.toLocaleString('en-US',{maximumFractionDigits:a>=100?2:a>=1?4:8})}
+const pct=(v,d=2)=>v===null||!isFinite(v)?'–':(v>0?'+':v<0?'−':'')+Math.abs(v).toFixed(d)+'%';
+const cls=v=>v>0?'pos':v<0?'neg':'';
+
+/* ---------- ฟอร์มช่วยสร้าง ---------- */
+function bind(o){return o.g?`data-g="${o.g}"`:o.list?`data-list="${o.list}" data-id="${o.id}" data-f="${o.f}"`:`data-k="${o.k}"`}
+function nIn(label,o,val,ph='',c=''){return `<label class="f ${c}"><span>${label}</span><input type="number" inputmode="decimal" step="any" ${bind(o)} value="${val??''}" placeholder="${esc(ph)}"></label>`}
+function tIn(label,o,val,ph='',c=''){return `<label class="f ${c}"><span>${label}</span><input type="text" ${bind(o)} value="${esc(val)}" placeholder="${esc(ph)}"></label>`}
+function sIn(label,o,val,opts,re=true,c=''){return `<label class="f ${c}"><span>${label}</span><select ${bind(o)} ${re?'data-re="1"':''}>${opts.map(([v,t])=>`<option value="${esc(v)}" ${String(v)===String(val)?'selected':''}>${esc(t)}</option>`).join('')}</select></label>`}
+function swIn(label,o,val){return `<label class="sw"><span class="tg"><input type="checkbox" ${bind(o)} data-re="1" ${val?'checked':''}><span></span></span><span>${label}</span></label>`}
+function row(list,it,inner,move=false){return `<div class="row ${it.on?'':'off'}"><label class="tg" title="เปิด/ปิดการนำมาคิด"><input type="checkbox" aria-label="นำมาคิด" data-list="${list}" data-id="${it.id}" data-f="on" ${it.on?'checked':''}><span></span></label><div class="rf">${inner}</div><div class="side"><button class="x" data-act="del" data-list="${list}" data-id="${it.id}" aria-label="ลบ">×</button>${move?`<button class="ib" data-act="mv" data-dir="-1" data-list="${list}" data-id="${it.id}" aria-label="เลื่อนขึ้น">↑</button><button class="ib" data-act="mv" data-dir="1" data-list="${list}" data-id="${it.id}" aria-label="เลื่อนลง">↓</button>`:''}</div></div>`}
+const L=(list,id,f)=>({list,id,f});
+const getP=(o,p)=>p?p.split('.').reduce((a,k)=>a?.[k],o):o;
+
+const STOP_T=[['pct','% จากราคาเข้า'],['support','ใต้แนวรับ (% เผื่อ)'],['pattern','ตามแพตเทิร์น'],['price','ราคาตรง']];
+const TIER_M=[['rr','R:R (เท่าของความเสี่ยง)'],['pct','% กำไร'],['price','ราคาเป้าหมาย']];
+const MOVE_T=[['none','ไม่ขยับ'],['be','ขยับไปจุดคุ้มทุน'],['prev','ขยับไปเป้าขั้นก่อน'],['pct','ขยับเป็น % เหนือราคาเข้า'],['price','ขยับไปราคาที่กำหนด']];
+const BUY_T={rsi_below:['RSI ต่ำกว่า','num'],rsi_cross_up:['RSI ฟื้นตัดขึ้นเหนือ','num'],near_support:['ราคาห่างแนวรับไม่เกิน %','num'],price_below:['ราคาต่ำกว่า','num'],trend:['แนวโน้มเป็น','trend'],pattern_bull:['แพตเทิร์นขาขึ้นที่เปิดไว้ เบรกแล้ว','none'],manual:['เงื่อนไขกำหนดเอง (ติ๊กเองว่าผ่าน)','manual']};
+const SELL_T={rsi_above:['RSI สูงกว่า','num'],rsi_cross_down:['RSI หลุดลงใต้','num'],near_resist:['ราคาห่างแนวต้านไม่เกิน %','num'],price_above:['ราคาสูงกว่า','num'],hit_tier:['ราคาแตะเป้าขั้นขายแรกที่เปิดไว้','none'],stop_hit:['ราคาถึง Stop-Loss','none'],trend:['แนวโน้มเป็น','trend'],pattern_bear:['แพตเทิร์นขาลงที่เปิดไว้ หลุดคอแล้ว','none'],manual:['เงื่อนไขกำหนดเอง (ติ๊กเองว่าผ่าน)','manual']};
+const TREND=[['up','ขาขึ้น'],['side','ไซด์เวย์'],['down','ขาลง']];
+const STATUS=[['watch','เฝ้าดู'],['waiting','รอเข้า'],['holding','ถืออยู่'],['closed','ปิดแล้ว']];
+
+const NEW={supports:()=>lv(null,''),resistances:()=>lv(null,''),stops:()=>st('pct',5),tiers:()=>tr('ขั้น '+(D.tiers.length+1),'rr',2,25,50,'none'),buyRules:()=>ru('rsi_below',30),sellRules:()=>ru('rsi_above',70),'dca.entries':()=>de('pct',(D.dca.entries.length)*5,20),'dca.exits':()=>dx('pct',20,50),patterns:()=>({id:uid(),on:true,name:'แพตเทิร์นของฉัน',kind:'bull',shape:'custom',pts:'20,50,30,60,45,70,55,85',breakout:null,height:null,sl:null,mult:1,caution:''}),plan:()=>pl(D.asset.name||'','crypto',null,null,null,null,null,'watch','')};
+
+/* ---------- วาดตัวแก้ไข ---------- */
+function renderEditors(){
+ const a=D.asset;
+ const live=a.src&&a.src!=='manual',rc=rsiCapable(a.src),ro=(h,f)=>f?h.replace('<input ','<input readonly title="อัปเดตจากราคาสด" '):h;
+ $('assetF').innerHTML=tIn('ชื่อ / สัญลักษณ์',{k:'asset.name'},a.name,'BTC, หุ้น A')+sIn('แหล่งราคาสด',{k:'asset.src'},a.src||'manual',SRC)+(needSym(a.src)?tIn('สัญลักษณ์ที่ใช้ดึงราคา',{k:'asset.sym'},a.sym,(a.name?'ว่าง = ใช้ '+a.name+' · ':'')+SYM_PH[a.src]):'')+nIn('ราคาเข้า (แผน)',{k:'asset.entry'},a.entry)+ro(nIn('ราคาปัจจุบัน',{k:'asset.current'},a.current),live)+ro(nIn('RSI ปัจจุบัน',{k:'asset.rsi'},a.rsi),live&&rc&&a.liveRsi)+ro(nIn('RSI แท่งก่อน',{k:'asset.rsiPrev'},a.rsiPrev),live&&rc&&a.liveRsi)+sIn('แนวโน้ม',{k:'asset.trend'},a.trend,TREND,false)+`<div style="grid-column:1/-1;display:flex;flex-wrap:wrap;gap:4px 20px">${swIn('ใช้ราคาปัจจุบันเป็นราคาเข้า',{k:'asset.useCur'},a.useCur)}${live&&rc?swIn('คำนวณ RSI จากกราฟจริง ('+LV.rsiTf+')',{k:'asset.liveRsi'},a.liveRsi):''}${live?'<button class="btn" data-act="liveNow">ดึงราคาตอนนี้</button>':''}</div>`;
+ for(const k of ['supports','resistances'])$('ed-'+k).innerHTML=D[k].map(it=>row(k,it,nIn('ราคา',L(k,it.id,'price'),it.price)+tIn('ชื่อ',L(k,it.id,'label'),it.label,'เช่น ฐานกรอบ')+`<span class="chip" id="lc-${it.id}"></span>`)).join('')||'<div class="empty">ยังไม่มีรายการ</div>';
+ $('portF').innerHTML=nIn('ทุนตั้งต้น',{k:'capital'},D.capital)+sIn('สกุลเงิน',{k:'currency'},D.currency,[['USD','USD ($)'],['THB','THB (฿)'],['custom','พิมพ์เอง']])+(D.currency==='custom'?tIn('รหัสสกุลเงิน',{k:'curCustom'},D.curCustom,'USDT, EUR'):'')+nIn('% ความเสี่ยงต่อไม้',{k:'riskPct'},D.riskPct)+nIn('% ทุนต่อไม้ (เมื่อไม่ใช้กฎความเสี่ยง)',{k:'allocPct'},D.allocPct)+nIn('เพดานมูลค่าไม้ % ของทุน',{k:'capPct'},D.capPct)+`<div style="grid-column:1/-1;display:flex;flex-wrap:wrap;gap:4px 20px">${swIn('ใช้กฎความเสี่ยงต่อไม้คำนวณขนาดไม้',{k:'useRisk'},D.useRisk)}${swIn('จำกัดเพดานมูลค่าไม้',{k:'useCap'},D.useCap)}</div>`;
+ $('slPickF').innerHTML=sIn('เมื่อเปิดหลายตัว ใช้',{k:'stopPick'},D.stopPick,[['tight','ตัวที่แคบสุด (ใกล้ราคาเข้า)'],['wide','ตัวที่กว้างสุด'],['avg','ค่าเฉลี่ย']],false);
+ const pats=D.patterns.map(p=>[p.id,p.name+(p.on?'':' (ปิดอยู่)')]);
+ $('ed-stops').innerHTML=D.stops.map(s=>row('stops',s,sIn('แบบ',L('stops',s.id,'type'),s.type,STOP_T,true,'w2')+(s.type==='pattern'?sIn('แพตเทิร์น',L('stops',s.id,'value'),s.value,pats.length?pats:[['','ไม่มีแพตเทิร์น']],false,'w2'):nIn(s.type==='pct'?'% ต่ำกว่าราคาเข้า':s.type==='support'?'% เผื่อใต้แนวรับ':'ราคา SL',L('stops',s.id,'value'),s.value))+tIn('หมายเหตุ',L('stops',s.id,'label'),s.label)+`<span class="chip full" id="sc-${s.id}"></span>`)).join('')||'<div class="empty">ยังไม่มี Stop-Loss</div>';
+ $('ed-tiers').innerHTML=D.tiers.map(t=>row('tiers',t,tIn('ชื่อขั้น',L('tiers',t.id,'name'),t.name)+sIn('ตั้งเป้าด้วย',L('tiers',t.id,'mode'),t.mode,TIER_M,true)+nIn(t.mode==='rr'?'R:R':t.mode==='pct'?'% กำไร':'ราคาเป้า',L('tiers',t.id,'value'),t.value)+nIn('% ที่ขาย',L('tiers',t.id,'sellPct'),t.sellPct)+nIn('% ดึงกำไรออก',L('tiers',t.id,'extractPct'),t.extractPct)+sIn('SL หลังถึงขั้นนี้',L('tiers',t.id,'move'),t.move,MOVE_T,true,'w2')+(t.move==='pct'||t.move==='price'?nIn(t.move==='pct'?'% เหนือราคาเข้า':'ราคา SL ใหม่',L('tiers',t.id,'moveVal'),t.moveVal):'')+`<span class="chip full" id="tc-${t.id}"></span>`,true)).join('')||'<div class="empty">ยังไม่มีขั้นขาย</div>';
+ $('sigF').innerHTML=sIn('ถือว่าผ่านเมื่อ',{k:'sigMode'},D.sigMode,[['ratio','ผ่านตามสัดส่วนที่ตั้ง'],['all','ผ่านทุกข้อที่เปิด'],['any','ผ่านอย่างน้อย 1 ข้อ']])+(D.sigMode==='ratio'?nIn('สัดส่วนขั้นต่ำ %',{k:'sigThr'},D.sigThr):'');
+ for(const [k,T] of [['buyRules',BUY_T],['sellRules',SELL_T]]){
+  const opts=Object.entries(T).map(([v,x])=>[v,x[0]]);
+  $('ed-'+k).innerHTML=D[k].map(r=>{const kind=(T[r.type]||['','none'])[1];let f='';
+   if(kind==='num')f=nIn('ค่า',L(k,r.id,'value'),r.value);
+   else if(kind==='trend')f=sIn('ค่า',L(k,r.id,'value'),r.value,TREND,false);
+   else if(kind==='manual')f=tIn('ชื่อเงื่อนไข',L(k,r.id,'label'),r.label,'เช่น ข่าวดี')+swIn('ตอนนี้ผ่าน',L(k,r.id,'met'),r.met);
+   return row(k,r,sIn('เงื่อนไข',L(k,r.id,'type'),r.type,opts,true,'w2')+f+`<span class="chip full" id="rc-${r.id}"></span>`)}).join('')||'<div class="empty">ยังไม่มีเงื่อนไข</div>';
+ }
+ const dc=D.dca;
+ $('dcaF').innerHTML=nIn('งบ DCA รวม',{k:'dca.budget'},dc.budget)+sIn('ราคาฐาน',{k:'dca.baseMode'},dc.baseMode,[['entry','ใช้ราคาเข้าจากหน้าคำนวณ'],['current','ใช้ราคาปัจจุบัน'],['own','กำหนดเอง']])+(dc.baseMode==='own'?nIn('ราคาฐาน',{k:'dca.base'},dc.base):'');
+ $('ed-dca.entries').innerHTML=dc.entries.map((e,i)=>row('dca.entries',e,sIn('ไม้ '+(i+1)+' กำหนดด้วย',L('dca.entries',e.id,'mode'),e.mode,[['pct','% ต่ำกว่าฐาน'],['price','ราคา']]) +nIn(e.mode==='pct'?'% ต่ำกว่าฐาน':'ราคา',L('dca.entries',e.id,'value'),e.value)+nIn('สัดส่วน % เงิน',L('dca.entries',e.id,'alloc'),e.alloc)+`<span class="chip full" id="dc-${e.id}"></span>`,true)).join('')||'<div class="empty">ยังไม่มีไม้ซื้อ</div>';
+ $('ed-dca.exits').innerHTML=dc.exits.map((e,i)=>row('dca.exits',e,sIn('ไม้ขาย '+(i+1),L('dca.exits',e.id,'mode'),e.mode,[['pct','% เหนือต้นทุนเฉลี่ย'],['price','ราคา']])+nIn(e.mode==='pct'?'% เหนือต้นทุน':'ราคา',L('dca.exits',e.id,'value'),e.value)+nIn('% ที่ขาย',L('dca.exits',e.id,'sellPct'),e.sellPct)+`<span class="chip full" id="xc-${e.id}"></span>`,true)).join('')||'<div class="empty">ยังไม่มีไม้ขาย</div>';
+ $('ed-patterns').innerHTML=D.patterns.map(p=>{const o=f=>L('patterns',p.id,f);return `<div class="pc ${p.on?'':'off'}"><div class="pch"><label class="tg" title="เปิดใช้คำนวณ"><input type="checkbox" aria-label="เปิดใช้" ${bind(o('on'))} ${p.on?'checked':''}><span></span></label><input type="text" aria-label="ชื่อแพตเทิร์น" ${bind(o('name'))} value="${esc(p.name)}"><button class="x" data-act="del" data-list="patterns" data-id="${p.id}" aria-label="ลบ">×</button></div><div id="psv-${p.id}"></div><div class="rf">${sIn('ทิศ',o('kind'),p.kind,[['bull','ขาขึ้น (ซื้อ)'],['bear','ขาลง (ขาย/ระวัง)']])}${nIn(p.kind==='bull'?'จุดเบรก/จุดเข้า':'จุดหลุดคอ',o('breakout'),p.breakout)}${nIn('ความสูงแพตเทิร์น',o('height'),p.height)}${nIn('Stop-Loss',o('sl'),p.sl)}${nIn('ตัวคูณเป้า',o('mult'),p.mult)}${p.shape==='custom'?tIn('จุดกราฟ 0–100',o('pts'),p.pts,'20,50,30,70','w2'):''}${tIn('จุดควรระวัง',o('caution'),p.caution,'','full')}</div><div class="kv" id="pc-${p.id}"></div><button class="btn" data-act="patSend" data-id="${p.id}">ส่งไปหน้าคำนวณ</button></div>`}).join('')||'<div class="empty">ยังไม่มีแพตเทิร์น</div>';
+ renderPlan();renderProfiles();renderLiveForm();
+}
+function renderPlan(){
+ const f=D.planFilter||'all';
+ $('planFilt').innerHTML=[['all','ทั้งหมด'],['checked','ที่ติ๊กไว้'],...STATUS].map(([v,t])=>`<button data-act="pfilt" data-v="${v}" class="${f===v?'on':''}">${t} <span class="note">${v==='all'?D.plan.length:v==='checked'?D.plan.filter(x=>x.on).length:D.plan.filter(x=>x.status===v).length}</span></button>`).join('');
+ const rows=D.plan.filter(x=>f==='all'||(f==='checked'?x.on:x.status===f));
+ $('ed-plan').innerHTML=rows.map(p=>{const o=k=>L('plan',p.id,k);return row('plan',p,tIn('สินทรัพย์',o('sym'),p.sym)+sIn('ประเภท',o('type'),p.type,[['crypto','คริปโต'],['stock','หุ้น'],['other','อื่น ๆ']],false)+sIn('สถานะ',o('status'),p.status,STATUS,false)+sIn('แหล่งราคาสด',o('src'),p.src||'manual',SRC)+nIn('ราคาเข้า',o('entry'),p.entry)+(p.src&&p.src!=='manual'?nIn('ราคาปัจจุบัน',o('current'),p.current).replace('<input ','<input readonly '):nIn('ราคาปัจจุบัน',o('current'),p.current))+nIn('Stop-Loss',o('sl'),p.sl)+nIn('เป้าหมาย',o('target'),p.target)+nIn('จำนวนหน่วย',o('qty'),p.qty)+tIn('บันทึก',o('note'),p.note,'','w2')+`<span class="chip full" id="lp-${p.id}"></span><button class="btn full" data-act="planToCalc" data-id="${p.id}">โหลดเข้าหน้าคำนวณ</button>`)}).join('')||'<div class="empty">ไม่มีรายการในตัวกรองนี้</div>';
+}
+function renderProfiles(){
+ $('profSel').innerHTML=S.profiles.map(p=>`<option value="${p.id}" ${p.id===S.active?'selected':''}>${esc(p.name)}</option>`).join('');
+ $('profList').innerHTML=S.profiles.map(p=>`<div class="prof ${p.id===S.active?'act':''}"><input type="text" aria-label="ชื่อชุด" data-prof="${p.id}" value="${esc(p.name)}">${p.id===S.active?'<span class="chip hi">ใช้อยู่</span>':`<button class="btn" data-act="profUse" data-id="${p.id}">ใช้ชุดนี้</button>`}<button class="btn" data-act="profDup" data-id="${p.id}">คัดลอก</button><button class="btn dan" data-act="profDel" data-id="${p.id}">ลบ</button></div>`).join('');
+ const others=S.profiles.filter(p=>p.id!==S.active);
+ $('mixFrom').innerHTML=others.length?others.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join(''):'<option value="">ไม่มีชุดอื่น</option>';
+ if(!$('mixChecks').innerHTML)$('mixChecks').innerHTML=MIX.map(([k,t])=>`<label><input type="checkbox" value="${k}">${t}</label>`).join('');
+}
+const MIX=[['port','พอร์ตและความเสี่ยง'],['asset','สินทรัพย์ + แนวรับ/ต้าน'],['stops','Stop-Loss'],['tiers','ขั้นขายทำกำไร'],['rules','เงื่อนไขซื้อ/ขาย'],['dca','DCA'],['patterns','แพตเทิร์น'],['plan','แผน / Watchlist']];
+const MIXK={port:['currency','curCustom','capital','riskPct','useRisk','allocPct','useCap','capPct'],asset:['asset','supports','resistances'],stops:['stops','stopPick'],tiers:['tiers'],rules:['buyRules','sellRules','sigMode','sigThr'],dca:['dca'],patterns:['patterns'],plan:['plan']};
+
+/* ---------- คำนวณ ---------- */
+function patCalc(p){const b=num(p.breakout),h=num(p.height),m=num(p.mult)??1;if(b===null||h===null)return{target:null};return{target:p.kind==='bull'?b+h*m:b-h*m}}
+function compute(){
+ const a=D.asset,C={};
+ C.P=num(a.current)??num(a.entry);C.E=a.useCur?(num(a.current)??num(a.entry)):(num(a.entry)??num(a.current));
+ const E=C.E;
+ C.sup=D.supports.filter(s=>s.on&&num(s.price)>0).map(s=>+s.price);
+ C.res=D.resistances.filter(s=>s.on&&num(s.price)>0).map(s=>+s.price);
+ C.pats=D.patterns.map(p=>Object.assign({},p,patCalc(p)));
+ C.stops=D.stops.map(s=>{let p=null,why='';const v=num(s.value);
+  if(!E)why='ใส่ราคาเข้าก่อน';
+  else if(s.type==='pct'){if(v!==null)p=E*(1-v/100)}
+  else if(s.type==='price')p=v;
+  else if(s.type==='support'){const below=C.sup.filter(x=>x<E);if(!below.length)why='ไม่มีแนวรับที่เปิดไว้ใต้ราคาเข้า';else p=Math.max(...below)*(1-(v||0)/100)}
+  else if(s.type==='pattern'){const pt=C.pats.find(x=>x.id===s.value);if(!pt)why='ไม่พบแพตเทิร์น';else if(!pt.on)why='แพตเทิร์นนี้ปิดอยู่';else p=num(pt.sl)}
+  const valid=p!==null&&E&&p>0&&p<E;if(p!==null&&!valid&&!why)why='ต้องต่ำกว่าราคาเข้า';
+  return{s,p,valid,why}});
+ const vs=C.stops.filter(x=>x.s.on&&x.valid).map(x=>x.p);
+ C.SL=!vs.length?null:D.stopPick==='wide'?Math.min(...vs):D.stopPick==='avg'?vs.reduce((a,b)=>a+b,0)/vs.length:Math.max(...vs);
+ const cap=num(D.capital)||0,R=C.SL!==null?E-C.SL:null;
+ C.riskAmt=cap*(num(D.riskPct)||0)/100;C.units=0;C.mode='';C.capped=false;
+ if(E){
+  if(D.useRisk&&R>0){C.units=C.riskAmt/R;C.mode='risk'}
+  else{C.units=cap*(num(D.allocPct)||0)/100/E;C.mode='alloc'}
+  if(D.useCap){const mx=cap*(num(D.capPct)||0)/100/E;if(C.units>mx){C.units=mx;C.capped=true}}
+ }
+ C.posVal=C.units*(E||0);C.maxLoss=R>0?C.units*R:null;
+ // ขั้นขาย
+ let rem=C.units,sl=C.SL,realized=0,extracted=0,prevT=null,soldPct=0,exPct=0;
+ C.tiers=D.tiers.map(t=>{const v=num(t.value);let T=null;
+  if(E){if(t.mode==='price')T=v;else if(t.mode==='pct')T=v!==null?E*(1+v/100):null;else T=(v!==null&&R>0)?E+v*R:null}
+  const o={t,T};if(!t.on)return o;
+  soldPct+=num(t.sellPct)||0;exPct+=num(t.extractPct)||0;
+  if(T===null){o.err=t.mode==='rr'&&!(R>0)?'R:R ต้องมี Stop-Loss ที่ใช้ได้':'ใส่ค่าเป้า';return o}
+  const su=Math.min(rem,C.units*(num(t.sellPct)||0)/100);
+  o.units=su;o.proceeds=su*T;o.profit=(T-E)*su;o.extract=Math.max(0,o.profit)*Math.min(100,num(t.extractPct)||0)/100;o.keep=o.proceeds-o.extract;
+  rem-=su;realized+=o.profit;extracted+=o.extract;o.rem=rem;
+  const mv=num(t.moveVal);
+  if(t.move==='be')sl=E;else if(t.move==='prev')sl=prevT??E;else if(t.move==='pct'&&mv!==null)sl=E*(1+mv/100);else if(t.move==='price'&&mv!==null)sl=mv;
+  o.sl=sl;o.locked=realized+(sl!==null?rem*(sl-E):0);o.realized=realized;prevT=T;o.gain=(T-E)/E*100;
+  return o});
+ C.soldPct=soldPct;C.exPct=exPct;C.runner=rem;C.realized=realized;C.extracted=extracted;
+ // เงื่อนไข
+ const P=C.P,near=(arr,v)=>P&&v!==null&&arr.some(x=>Math.abs(P-x)/x*100<=v);
+ const firstT=C.tiers.find(x=>x.t.on&&x.T!==null);
+ const ev=(r,side)=>{const v=num(r.value),rsi=num(a.rsi),rp=num(a.rsiPrev);
+  switch(r.type){
+   case'rsi_below':return rsi!==null&&v!==null?[rsi<v,`RSI ${rsi}`]:[null,'ใส่ค่า RSI'];
+   case'rsi_above':return rsi!==null&&v!==null?[rsi>v,`RSI ${rsi}`]:[null,'ใส่ค่า RSI'];
+   case'rsi_cross_up':return rsi!==null&&rp!==null&&v!==null?[rp<v&&rsi>=v,`${rp} → ${rsi}`]:[null,'ใส่ RSI ทั้ง 2 ค่า'];
+   case'rsi_cross_down':return rsi!==null&&rp!==null&&v!==null?[rp>v&&rsi<=v,`${rp} → ${rsi}`]:[null,'ใส่ RSI ทั้ง 2 ค่า'];
+   case'near_support':{if(!C.sup.length)return[null,'ไม่มีแนวรับที่เปิด'];const d=Math.min(...C.sup.map(x=>Math.abs(P-x)/x*100));return[near(C.sup,v),`ใกล้สุด ${d.toFixed(2)}%`]}
+   case'near_resist':{if(!C.res.length)return[null,'ไม่มีแนวต้านที่เปิด'];const d=Math.min(...C.res.map(x=>Math.abs(P-x)/x*100));return[near(C.res,v),`ใกล้สุด ${d.toFixed(2)}%`]}
+   case'price_below':return v!==null&&P?[P<v,'ราคา '+fp(P)]:[null,'ใส่ค่า'];
+   case'price_above':return v!==null&&P?[P>v,'ราคา '+fp(P)]:[null,'ใส่ค่า'];
+   case'trend':return[a.trend===r.value,'ตอนนี้ '+(TREND.find(x=>x[0]===a.trend)||['',''])[1]];
+   case'hit_tier':return firstT?[P>=firstT.T,`${firstT.t.name} ${fp(firstT.T)}`]:[null,'ไม่มีขั้นขายที่ใช้ได้'];
+   case'stop_hit':return C.SL!==null?[P<=C.SL,'SL '+fp(C.SL)]:[null,'ยังไม่มี SL'];
+   case'pattern_bull':{const ps=C.pats.filter(x=>x.on&&x.kind==='bull'&&num(x.breakout)!==null);return ps.length?[ps.some(x=>P>=x.breakout),ps.map(x=>x.name).join(', ')]:[null,'ไม่มีแพตเทิร์นขาขึ้นที่เปิด']}
+   case'pattern_bear':{const ps=C.pats.filter(x=>x.on&&x.kind==='bear'&&num(x.breakout)!==null);return ps.length?[ps.some(x=>P<=x.breakout),ps.map(x=>x.name).join(', ')]:[null,'ไม่มีแพตเทิร์นขาลงที่เปิด']}
+   case'manual':return[!!r.met,r.label||''];
+  }return[null,'']};
+ const side=list=>{const res=D[list].map(r=>({r,e:ev(r)}));const on=res.filter(x=>x.r.on),pass=on.filter(x=>x.e[0]===true).length;const n=on.length;
+  const ok=n>0&&(D.sigMode==='all'?pass===n:D.sigMode==='any'?pass>0:pass/n*100>=(num(D.sigThr)??60));return{res,n,pass,ok}};
+ C.buy=side('buyRules');C.sell=side('sellRules');
+ C.sig=C.buy.ok&&C.sell.ok?['mix','สัญญาณขัดกัน']:C.buy.ok?['buy','อยู่ในโซนซื้อตามกติกา']:C.sell.ok?['sell','โซนขาย / ระวัง']:['wait','รอ ยังไม่ผ่านเงื่อนไข'];
+ // DCA
+ const dc=D.dca,base=dc.baseMode==='own'?num(dc.base):dc.baseMode==='current'?C.P:E,bud=num(dc.budget)||0;
+ let cost=0,qty=0,alloc=0;
+ C.dEnt=dc.entries.map(e=>{const v=num(e.value),p=e.mode==='price'?v:(base&&v!==null?base*(1-v/100):null);const o={e,p};if(!e.on)return o;alloc+=num(e.alloc)||0;if(!(p>0))return o;o.amt=bud*(num(e.alloc)||0)/100;o.u=o.amt/p;cost+=o.amt;qty+=o.u;o.avg=qty?cost/qty:null;return o});
+ C.dAlloc=alloc;C.dCost=cost;C.dQty=qty;C.dAvg=qty?cost/qty:null;C.dBase=base;
+ let dq=qty,dsold=0,dproc=0,dpl=0;
+ C.dEx=dc.exits.map(e=>{const v=num(e.value),p=e.mode==='price'?v:(C.dAvg&&v!==null?C.dAvg*(1+v/100):null);const o={e,p};if(!e.on)return o;dsold+=num(e.sellPct)||0;if(!(p>0)||!qty)return o;o.u=Math.min(dq,qty*(num(e.sellPct)||0)/100);dq-=o.u;o.proc=o.u*p;o.pl=(p-C.dAvg)*o.u;dproc+=o.proc;dpl+=o.pl;o.left=dq;return o});
+ C.dSold=dsold;C.dProc=dproc;C.dPl=dpl;C.dLeft=dq;
+ return C;
+}
+
+/* ---------- แสดงผล ---------- */
+let C;
+function chip(id,html,c=''){const el=$(id);if(el){el.innerHTML=html;el.className='chip '+c+(el.classList.contains('full')?' full':'')}}
+function update(){
+ C=compute();const E=C.E;
+ const [sk,st]=C.sig;
+ $('strip').innerHTML=`<div class="kpi sig-${sk}"><small>สัญญาณ ${esc(D.asset.name||'')}</small><strong>${st}</strong><em>ซื้อ ${C.buy.pass}/${C.buy.n} · ขาย ${C.sell.pass}/${C.sell.n}</em></div>
+ <div class="kpi"><small>ขนาดไม้ที่คำนวณได้</small><strong class="cy">${fu(C.units)} หน่วย</strong><em>${fm(C.posVal)}${D.capital?' · '+(C.posVal/D.capital*100).toFixed(1)+'% ของทุน':''}</em></div>
+ <div class="kpi"><small>Stop-Loss ที่ใช้</small><strong class="neg">${fp(C.SL)}</strong><em>${C.SL!==null&&E?pct((C.SL-E)/E*100)+' จากราคาเข้า':'ยังไม่มี SL ที่ใช้ได้'}</em></div>
+ <div class="kpi"><small>ขาดทุนสูงสุดถ้าโดน SL</small><strong class="neg">${C.maxLoss!==null?fm(-C.maxLoss):'–'}</strong><em>${C.maxLoss!==null&&D.capital?(C.maxLoss/D.capital*100).toFixed(2)+'% ของทุน':''}</em></div>`;
+ for(const k of['supports','resistances'])D[k].forEach(s=>{const p=num(s.price);chip('lc-'+s.id,p&&C.P?'ห่าง '+pct((p-C.P)/C.P*100):'')});
+ C.stops.forEach(x=>chip('sc-'+x.s.id,x.valid?`SL ${fp(x.p)} · ${pct((x.p-E)/E*100)} · เสี่ยง/หน่วย ${fp(E-x.p)}${x.s.on&&x.p===C.SL?' · ใช้ตัวนี้':''}`:(x.why||'–'),x.valid?(x.s.on&&x.p===C.SL?'hi':''):'bad'));
+ C.tiers.forEach(x=>chip('tc-'+x.t.id,x.T!==null?`เป้า ${fp(x.T)} (${pct((x.T-E)/E*100)})${x.units!==undefined?` · ขาย ${fu(x.units)} หน่วย · ดึงออก ${fm(x.extract)}`:''}`:(x.err||'ใส่ค่าเป้า'),x.T!==null?'ok':'bad'));
+ const tw=[];if(C.soldPct>100)tw.push(`รวม % ที่ขาย ${C.soldPct}% เกิน 100% ขั้นท้าย ๆ จะขายได้ไม่ครบ`);
+ D.tiers.forEach(t=>{if(t.on&&num(t.extractPct)>100)tw.push(`${t.name}: % ดึงกำไรเกิน 100%`)});
+ $('tierTot').innerHTML=`<span class="chip ${C.soldPct>100?'bad':C.soldPct===100?'ok':''}">ขายรวม ${C.soldPct}%</span><span class="chip">ถือต่อ ${Math.max(0,100-C.soldPct)}%</span><span class="chip hi">ดึงกำไรออกรวม ${fm(C.extracted)}${C.realized>0?' = '+(C.extracted/C.realized*100).toFixed(1)+'% ของกำไรทั้งหมด':''}</span>`+tw.map(w=>`<div class="warn">${w}</div>`).join('');
+ // ผลขนาดไม้
+ const vstops=C.stops.filter(x=>x.s.on);
+ $('posOut').innerHTML=`<h2>ขนาดไม้และความเสี่ยง</h2>${!E?'<div class="empty">ใส่ราคาเข้าหรือราคาปัจจุบันในช่องสินทรัพย์</div>':`<p class="note">${C.mode==='risk'?`ใช้กฎความเสี่ยง ${D.riskPct}% = ${fm(C.riskAmt)} ÷ ระยะ SL ${fp(E-C.SL)} ต่อหน่วย`:D.useRisk?'เปิดกฎความเสี่ยงแต่ยังไม่มี SL ที่ใช้ได้ จึงใช้ % ทุนต่อไม้แทน':`ใช้ ${D.allocPct}% ของทุนต่อไม้`}${C.capped?` · ถูกจำกัดที่เพดาน ${D.capPct}% ของทุน`:''}</p>
+ <div class="res"><div><small class="note">ราคาเข้า</small><div class="big cy">${fp(E)}</div></div><div><small class="note">จำนวนหน่วย</small><div class="big">${fu(C.units)}</div></div><div><small class="note">มูลค่าไม้</small><div class="big">${fm(C.posVal)}</div></div></div>
+ <h3>เทียบ Stop-Loss ที่เปิดไว้</h3>${vstops.length?`<div class="scroll"><table><thead><tr><th>แบบ</th><th>ราคา SL</th><th>ระยะ</th><th>หน่วยตามกฎเสี่ยง</th><th>ขาดทุนถ้าโดน</th></tr></thead><tbody>${vstops.map(x=>{const r=x.valid?E-x.p:null,u=r?C.riskAmt/r:null;return `<tr class="${x.valid&&x.p===C.SL?'use':''}"><td>${esc(STOP_T.find(t=>t[0]===x.s.type)[1])}${x.s.label?' · '+esc(x.s.label):''}</td><td class="neg">${x.valid?fp(x.p):esc(x.why)}</td><td>${x.valid?pct((x.p-E)/E*100):''}</td><td>${u?fu(u):''}</td><td class="neg">${x.valid?fm(-C.units*r):''}</td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">ยังไม่ได้เปิด Stop-Loss ตัวไหน</div>'}`}`;
+ // ผลขั้นขาย
+ const on=C.tiers.filter(x=>x.t.on);
+ $('tierOut').innerHTML=`<h2>แผนขายทำกำไรตามขั้นที่เปิดไว้</h2>${!E||!C.units?'<div class="empty">ต้องมีราคาเข้าและขนาดไม้ก่อน</div>':on.length?`<div class="scroll"><table><thead><tr><th>ขั้น</th><th>ราคาขาย</th><th>ขาย (หน่วย)</th><th>มูลค่าที่ได้</th><th>กำไรขั้นนี้</th><th>ดึงออก</th><th>ถือต่อ</th><th>SL ใหม่</th><th>กำไรที่ล็อกได้</th></tr></thead><tbody>${on.map(x=>x.units===undefined?`<tr><td>${esc(x.t.name)}</td><td colspan="8" class="neg" style="text-align:left">${esc(x.err)}</td></tr>`:`<tr><td>${esc(x.t.name)}</td><td class="pos">${fp(x.T)}<br><small>${pct(x.gain)}</small></td><td>${fu(x.units)}</td><td>${fm(x.proceeds)}</td><td class="${cls(x.profit)}">${fm(x.profit)}</td><td class="gold">${fm(x.extract)}</td><td>${fu(x.rem)}</td><td class="neg">${fp(x.sl)}</td><td class="${cls(x.locked)}">${fm(x.locked)}</td></tr>`).join('')}</tbody></table></div>
+ <div class="tot"><span class="chip ok">กำไรรวมถ้าถึงทุกขั้น ${fm(C.realized)}</span><span class="chip hi">ดึงออกรวม ${fm(C.extracted)}</span><span class="chip">ส่วนที่เหลือรันต่อ ${fu(C.runner)} หน่วย (${C.units?(C.runner/C.units*100).toFixed(1):0}%)</span>${C.SL!==null?`<span class="chip">R:R เฉลี่ยของขั้นที่ขาย ${C.maxLoss?(C.realized/(C.maxLoss*(1-C.runner/C.units)||1)).toFixed(2):'–'}</span>`:''}</div><p class="note">กำไรที่ล็อกได้ = กำไรที่ขายแล้ว + (SL ใหม่ − ราคาเข้า) × จำนวนที่ถือต่อ คือกรณีแย่สุดหลังถึงขั้นนั้น</p>`:'<div class="empty">ยังไม่ได้เปิดขั้นขาย ไปที่แท็บ "พอร์ต · SL · ขั้นขาย"</div>'}`;
+ // สัญญาณ
+ for(const sd of[C.buy,C.sell])sd.res.forEach(x=>chip('rc-'+x.r.id,!x.r.on?'ปิดอยู่ ไม่นำมาคิด':(x.e[0]===null?'ข้อมูลไม่พอ · ':x.e[0]?'ผ่าน · ':'ยังไม่ผ่าน · ')+esc(x.e[1]),!x.r.on?'':x.e[0]===null?'hi':x.e[0]?'ok':'bad'));
+ $('sigOut').innerHTML=`<div class="strip" style="grid-template-columns:repeat(3,minmax(0,1fr));margin:0"><div class="kpi sig-${sk}"><small>ทิศทางตามกติกา</small><strong>${st}</strong></div><div class="kpi"><small>ฝั่งซื้อผ่าน</small><strong class="pos">${C.buy.pass} / ${C.buy.n}</strong><em>${C.buy.ok?'ถึงเกณฑ์':'ยังไม่ถึงเกณฑ์'}</em></div><div class="kpi"><small>ฝั่งขายผ่าน</small><strong class="neg">${C.sell.pass} / ${C.sell.n}</strong><em>${C.sell.ok?'ถึงเกณฑ์':'ยังไม่ถึงเกณฑ์'}</em></div></div>`;
+ // DCA
+ C.dEnt.forEach(x=>chip('dc-'+x.e.id,x.p>0?`ราคา ${fp(x.p)}${x.amt!==undefined?` · ${fm(x.amt)} · ${fu(x.u)} หน่วย · ต้นทุนเฉลี่ยสะสม ${fp(x.avg)}`:''}`:'ใส่ราคาฐานหรือค่า',x.p>0?'':'bad'));
+ C.dEx.forEach(x=>chip('xc-'+x.e.id,x.p>0?`ราคา ${fp(x.p)}${x.u!==undefined?` · ขาย ${fu(x.u)} · ${fm(x.proc)} · กำไร ${fm(x.pl)}`:''}`:'ต้องมีต้นทุนเฉลี่ยก่อน',x.p>0?'ok':'bad'));
+ $('dcaTot').innerHTML=`<span class="chip ${Math.abs(C.dAlloc-100)<.001?'ok':'bad'}">สัดส่วนรวม ${C.dAlloc}%</span>${Math.abs(C.dAlloc-100)>.001?`<div class="warn">สัดส่วนไม้ที่เปิดรวม ${C.dAlloc}% ${C.dAlloc>100?'เกินงบ':'ใช้งบไม่ครบ'}</div>`:''}`;
+ $('dcaOut').innerHTML=`<h2>ผลจำลอง DCA</h2>${C.dQty?`<div class="res"><div><small class="note">ต้นทุนเฉลี่ย</small><div class="big cy">${fp(C.dAvg)}</div><small class="note">${C.dBase?pct((C.dAvg-C.dBase)/C.dBase*100)+' จากราคาฐาน '+fp(C.dBase):''}</small></div><div><small class="note">เงินที่ใช้</small><div class="big">${fm(C.dCost)}</div></div><div><small class="note">จำนวนที่ได้</small><div class="big">${fu(C.dQty)}</div></div><div><small class="note">มูลค่าที่ราคาปัจจุบัน</small><div class="big ${cls(C.P*C.dQty-C.dCost)}">${C.P?fm(C.P*C.dQty):'–'}</div></div></div>
+ <div class="tot"><span class="chip ${C.dSold>100?'bad':''}">ขายคืนรวม ${C.dSold}%</span><span class="chip ok">เงินรับจากไม้ขาย ${fm(C.dProc)}</span><span class="chip ${cls(C.dPl)==='pos'?'ok':''}">กำไรจากไม้ขาย ${fm(C.dPl)}</span><span class="chip">ถือต่อ ${fu(C.dLeft)} หน่วย</span></div>${C.dSold>100?'<div class="warn">รวม % ไม้ขายเกิน 100%</div>':''}`:'<div class="empty">ใส่งบ DCA ราคาฐาน และเปิดไม้ซื้ออย่างน้อย 1 ไม้</div>'}`;
+ // แพตเทิร์น
+ C.pats.forEach(p=>{const el=$('psv-'+p.id);if(el)el.innerHTML=patSvg(p);const kv=$('pc-'+p.id);if(!kv)return;const b=num(p.breakout),sl=num(p.sl),T=p.target;const rr=b&&sl&&T?Math.abs(T-b)/Math.abs(b-sl):null;
+  kv.innerHTML=p.kind==='bull'?`<span>จุดเข้า</span><b class="cy">${fp(b)}</b><span>เป้าขาย</span><b class="pos">${fp(T)}${b&&T?' ('+pct((T-b)/b*100)+')':''}</b><span>Stop-Loss</span><b class="neg">${fp(sl)}</b><span>R:R</span><b>${rr?rr.toFixed(2):'–'}</b>`:`<span>โซนขาย/ระวัง</span><b class="neg">หลุด ${fp(b)}</b><span>เป้าลง</span><b class="neg">${fp(T)}${b&&T?' ('+pct((T-b)/b*100)+')':''}</b><span>ยกเลิกถ้ากลับเหนือ</span><b class="gold">${fp(sl)}</b><span>R:R ฝั่งลง</span><b>${rr?rr.toFixed(2):'–'}</b>`;
+  if(p.caution)kv.innerHTML+=`<span style="grid-column:1/-1" class="gold">ระวัง: ${esc(p.caution)}</span>`});
+ // แผน
+ D.plan.forEach(p=>{const e=num(p.entry),c=num(p.current),s=num(p.sl),t=num(p.target),q=num(p.qty)||0;const pl=e&&c?(c-e)*q:null,rr=e&&s&&t&&e>s?(t-e)/(e-s):null;
+  chip('lp-'+p.id,[liveTxt(p.src,p.sym,true),c&&e?`${pct((c-e)/e*100)}`:'',q&&c?`มูลค่า ${fm(c*q)}`:'',pl!==null&&q?`กำไร/ขาดทุน ${fm(pl)}`:'',e&&s&&q?`เสี่ยง ${fm(-(e-s)*q)}`:'',rr?`R:R ${rr.toFixed(2)}`:''].filter(Boolean).join(' · ')||'ใส่ราคาเพื่อดูผล',pl>0?'ok':pl<0?'bad':'')});
+ const ck=D.plan.filter(p=>p.on);let tv=0,tc=0,tr2=0;ck.forEach(p=>{const e=num(p.entry),c=num(p.current),s=num(p.sl),q=num(p.qty)||0;if(e)tc+=e*q;if(c)tv+=c*q;if(e&&s&&e>s)tr2+=(e-s)*q});
+ $('planTot').innerHTML=`<span class="chip">ติ๊กไว้ ${ck.length} รายการ</span><span class="chip">ต้นทุนรวม ${fm(tc)}</span><span class="chip">มูลค่ารวม ${fm(tv)}</span><span class="chip ${tv-tc>0?'ok':tv-tc<0?'bad':''}">กำไร/ขาดทุน ${fm(tv-tc)}${tc?' ('+pct((tv-tc)/tc*100)+')':''}</span><span class="chip bad">เสี่ยงรวมถ้าโดน SL ${fm(-tr2)}${D.capital?' ('+(tr2/D.capital*100).toFixed(2)+'% ของทุน)':''}</span>`;
+ {const a=D.asset;chip('liveAsset',!a.src||a.src==='manual'?'ราคากรอกเอง · เลือก "แหล่งราคาสด" เพื่อดึงราคาจริง':liveTxt(a.src,a.sym||a.name),liveCls(a.src,a.sym||a.name))}
+ drawLadder();
+ if(S.tab==='data')fillJson();
+ save();
+}
+
+function patSvg(p){
+ let pts=p.shape==='custom'?String(p.pts||'').split(/[ ,]+/).map(Number).filter(v=>isFinite(v)):(SHAPES[p.shape]||{}).pts||[];
+ if(pts.length<2)return '<div class="empty">ใส่จุดกราฟอย่างน้อย 2 จุด</div>';
+ const n=pts.length,X=i=>12+i*(176/(n-1)),Y=v=>100-Math.max(0,Math.min(100,v))*.88;
+ const col=p.kind==='bull'?'var(--g)':'var(--r)';const nk=p.shape==='custom'?null:SHAPES[p.shape]?.nk;
+ const last=pts[n-1],tgt=p.kind==='bull'?Math.min(100,last+18):Math.max(0,last-18);
+ return `<svg viewBox="0 0 200 110" role="img" aria-label="${esc(p.name)}">${[25,50,75].map(y=>`<line x1="0" x2="200" y1="${y}" y2="${y}" stroke="#1b2530"/>`).join('')}${nk!=null?`<line x1="8" x2="192" y1="${Y(nk)}" y2="${Y(nk)}" stroke="var(--y)" stroke-dasharray="4 3"/>`:''}<polyline fill="none" stroke="${col}" stroke-width="2.5" stroke-linejoin="round" points="${pts.map((v,i)=>X(i)+','+Y(v)).join(' ')}"/><line x1="${X(n-1)}" x2="${X(n-1)}" y1="${Y(last)}" y2="${Y(tgt)}" stroke="${col}" stroke-dasharray="2 3"/><circle cx="${X(n-1)}" cy="${Y(tgt)}" r="3.5" fill="${col}"/></svg>`;
+}
+
+let ladRO;
+function drawLadder(){
+ const s=$('ladSvg');if(!s||!C)return;const W=s.clientWidth,H=s.clientHeight;if(!W||!H)return;
+ const lv=[];const add=(p,l,c,d)=>{if(p>0&&isFinite(p))lv.push({p,l,c,d})};
+ C.sup.forEach(p=>add(p,'แนวรับ','#2a8a57','4 4'));C.res.forEach(p=>add(p,'แนวต้าน','#a0474a','4 4'));
+ C.tiers.filter(x=>x.t.on&&x.T!==null).forEach(x=>add(x.T,x.t.name,'var(--g)'));
+ add(C.SL,'Stop-Loss','var(--r)');add(C.E,'เข้า','var(--c)');if(C.P!==C.E)add(C.P,'ปัจจุบัน','var(--y)');
+ if(!lv.length){s.innerHTML=`<text x="${W/2}" y="${H/2}" text-anchor="middle" fill="var(--mu)" font-size="14">ใส่ราคาเพื่อดูบันไดราคา</text>`;return}
+ let mn=Math.min(...lv.map(x=>x.p)),mx=Math.max(...lv.map(x=>x.p));if(mn===mx){mn*=.95;mx*=1.05}
+ const pad=22,y=p=>pad+(mx-p)/(mx-mn)*(H-2*pad);
+ lv.sort((a,b)=>b.p-a.p);let last=-99;lv.forEach(v=>{v.y=y(v.p);v.ly=Math.max(v.y,last+17);last=v.ly});
+ const over=last-(H-6);if(over>0){lv.forEach(v=>v.ly-=over);for(let i=lv.length-2;i>=0;i--)if(lv[i].ly>lv[i+1].ly-17)lv[i].ly=lv[i+1].ly-17}
+ const narrow=W<420,lx=narrow?6:12,px=W-8,line0=narrow?96:130,line1=W-(narrow?84:110);
+ const E=C.E;
+ let h='';
+ if(C.SL!==null&&E){h+=`<rect x="${line0}" y="${y(E)}" width="${line1-line0}" height="${Math.max(0,y(C.SL)-y(E))}" fill="rgba(255,92,92,.12)"/>`}
+ const tops=C.tiers.filter(x=>x.t.on&&x.T!==null).map(x=>x.T);if(E&&tops.length){const tmax=Math.max(...tops);h+=`<rect x="${line0}" y="${y(tmax)}" width="${line1-line0}" height="${Math.max(0,y(E)-y(tmax))}" fill="rgba(47,210,122,.08)"/>`}
+ lv.forEach(v=>{h+=`<line x1="${line0}" x2="${line1}" y1="${v.y}" y2="${v.y}" stroke="${v.c}" stroke-width="${v.d?1:2}" ${v.d?`stroke-dasharray="${v.d}"`:''}/><path d="M${line0-4} ${v.ly-4} L${line0} ${v.y}" stroke="${v.c}" fill="none" opacity=".6"/><text x="${lx}" y="${v.ly}" fill="${v.c}" font-size="13" font-weight="600">${esc(v.l.length>12&&narrow?v.l.slice(0,11)+'…':v.l)}</text><text x="${px}" y="${v.ly}" text-anchor="end" fill="${v.c}" font-size="13">${fp(v.p)}</text>`});
+ s.innerHTML=h;
+}
+ladRO=new ResizeObserver(drawLadder);ladRO.observe($('ladder'));
+
+/* ---------- ราคาสด ---------- */
+const LIVE0={autoOn:true,sec:15,ws:true,fhKey:'',proxy:'',proxyKey:'',goldSrc:'xaus',fxSrc:'xaus',fxManual:null,purity:96.5,premium:0,spread:100,round50:true,rsiTf:'1d',rsiLen:14};
+S.live=Object.assign({},LIVE0,S.live||{});
+const LV=S.live;
+const Q={};let lastOk=0,lastErr='',busy=false,liveTimer,ws=null,wsKeys='',wsRetry=0,wsTimer,kickT,updT;
+function errMsg(e){const m=String(e&&e.message||e);return /fetch|network|Load failed|NetworkError/i.test(m)?'เชื่อมต่อไม่ได้':m}
+function qkey(src,sym){
+ const s=String(sym||'').trim().toUpperCase().replace(/\s+/g,'');
+ if(src==='crypto'){if(!s)return null;const m=s.match(/(USDT|USDC|FDUSD|BTC|ETH|BNB)$/);return 'c:'+(m&&s.length>m[1].length+1?s:s+'USDT')}
+ if(src==='us')return s?'us:'+s:null;
+ if(src==='th')return s?'th:'+(s.includes('.')?s:s+'.BK'):null;
+ if(src==='yahoo')return s?'y:'+s:null;
+ if(src==='gold'||src==='goldth')return src;return null}
+function needed(){const m=new Map();const a=D.asset,k=qkey(a.src,a.sym||a.name);if(k)m.set(k,{rsi:a.liveRsi&&rsiCapable(a.src)});D.plan.forEach(p=>{const k=qkey(p.src,p.sym);if(k&&!m.has(k))m.set(k,{rsi:false})});return m}
+function goldNeeded(n){return n.has('gold')||n.has('goldth')||S.tab==='live'}
+function setQ(k,o){Q[k]=Object.assign(Q[k]||{},o,{t:Date.now(),err:null});lastOk=Date.now()}
+function setErr(k,e){Q[k]=Object.assign(Q[k]||{},{err:errMsg(e)});lastErr=errMsg(e)}
+async function getJ(url,opt){const r=await fetch(url,Object.assign({cache:'no-store'},opt||{}));if(!r.ok){let t='';try{t=(await r.json()).error||''}catch(e){}throw new Error('HTTP '+r.status+(t?' '+t:''))}return r.json()}
+const BN=['https://data-api.binance.vision/api/v3/','https://api.binance.com/api/v3/'];
+async function bn(path){let er;for(const b of BN){try{return await getJ(b+path)}catch(x){er=x;if(/HTTP 4/.test(x.message))break}}throw er}
+async function proxyQ(sym,interval,range){if(!LV.proxy)throw new Error('ยังไม่ได้ใส่ URL พร็อกซี (แท็บราคาสด)');const u=LV.proxy+(LV.proxy.includes('?')?'&':'?')+'symbol='+encodeURIComponent(sym)+'&interval='+(interval||'1d')+'&range='+(range||'5d');return getJ(u,LV.proxyKey?{headers:{Authorization:'Bearer '+LV.proxyKey,apikey:LV.proxyKey}}:{})}
+let xausAt=0,xausJ=null;
+async function xaus(){if(xausJ&&Date.now()-xausAt<60000)return xausJ;const j=await getJ('https://xaus.com/api/v1/spot?currency=THB&unit=oz');xausJ=j;xausAt=Date.now();return j}
+const YTF={'1h':['1h','1mo'],'4h':['1h','3mo'],'1d':['1d','1y'],'1w':['1wk','2y']};
+function rsiCalc(c,n){if(c.length<n+2)return null;let g=0,l=0;for(let i=1;i<=n;i++){const d=c[i]-c[i-1];if(d>0)g+=d;else l-=d}g/=n;l/=n;const out=[l===0?100:100-100/(1+g/l)];for(let i=n+1;i<c.length;i++){const d=c[i]-c[i-1];g=(g*(n-1)+Math.max(d,0))/n;l=(l*(n-1)+Math.max(-d,0))/n;out.push(l===0?100:100-100/(1+g/l))}return [out[out.length-1],out[out.length-2]]}
+function computeGold(){
+ const g=Q._g||{};const usd=LV.goldSrc==='paxg'?(Q['c:PAXGUSDT']||{}).p:g.usd;const fx=LV.fxSrc==='manual'?num(LV.fxManual):g.fx;
+ if(usd)setQ('gold',{p:usd,via:LV.goldSrc==='paxg'?'PAXG (Binance)':LV.goldSrc==='proxy'?'Yahoo GC=F':'xaus.com',chg:LV.goldSrc==='paxg'?(Q['c:PAXGUSDT']||{}).chg:null});
+ if(fx)setQ('fx',{p:fx,via:LV.fxSrc==='manual'?'กรอกเอง':LV.fxSrc==='proxy'?'Yahoo THB=X':'xaus.com'});
+ if(usd&&fx){let v=usd*fx/31.1035*15.244*(num(LV.purity)??96.5)/100+(num(LV.premium)||0);if(LV.round50)v=Math.round(v/50)*50;setQ('goldth',{p:v,buy:v-(num(LV.spread)||0),via:'คำนวณจากทองโลก × ค่าเงินบาท'})}
+}
+async function refreshAll(){
+ if(busy)return;busy=true;setDot('load');
+ const need=needed(),tf=LV.rsiTf||'1d',gN=goldNeeded(need);
+ try{
+  const cs=[...need.keys()].filter(k=>k.startsWith('c:')).map(k=>k.slice(2));
+  if(LV.goldSrc==='paxg'&&gN)cs.push('PAXGUSDT');
+  const uniq=[...new Set(cs)];
+  if(uniq.length){
+   try{(await bn('ticker/24hr?symbols='+encodeURIComponent(JSON.stringify(uniq)))).forEach(t=>setQ('c:'+t.symbol,{p:+t.lastPrice,chg:+t.priceChangePercent,via:'Binance'}))}
+   catch(e){await Promise.all(uniq.map(sy=>bn('ticker/24hr?symbol='+sy).then(t=>setQ('c:'+sy,{p:+t.lastPrice,chg:+t.priceChangePercent,via:'Binance'})).catch(x=>setErr('c:'+sy,/HTTP 400/.test(x.message)?'ไม่พบคู่เหรียญ '+sy:x))))}
+  }
+  const jobs=[];
+  for(const [k,o] of need){
+   const kind=k.split(':')[0],sym=k.slice(kind.length+1);
+   if(kind==='c'&&o.rsi){const q=Q[k]||{};if(!q.cAt||Date.now()-q.cAt>60000||q.tf!==tf)jobs.push(bn(`klines?symbol=${sym}&interval=${tf}&limit=200`).then(a=>{Q[k]=Object.assign(Q[k]||{},{closes:a.map(x=>+x[4]),cAt:Date.now(),tf})}).catch(e=>setErr(k,e)))}
+   if(kind==='us'&&LV.fhKey)jobs.push(getJ(`https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(sym)}&token=${encodeURIComponent(LV.fhKey)}`).then(j=>{if(!j.c&&!j.t)throw new Error('ไม่พบหุ้น '+sym);setQ(k,{p:+j.c,chg:+j.dp,via:'Finnhub'})}).catch(e=>setErr(k,e)));
+   const viaProxy=kind==='th'||kind==='y'||(kind==='us'&&(!LV.fhKey||o.rsi));
+   if(viaProxy){const [iv,rg]=o.rsi?YTF[tf]:['1d','5d'];const q=Q[k]||{};
+    const fresh=q.cAt&&Date.now()-q.cAt<60000&&q.tf===tf;
+    if(!(kind==='us'&&LV.fhKey&&fresh))jobs.push(proxyQ(sym,iv,rg).then(j=>{const add={closes:o.rsi?j.closes:q.closes,cAt:o.rsi?Date.now():q.cAt,tf:o.rsi?tf:q.tf,cur:j.currency};if(kind==='us'&&LV.fhKey)Q[k]=Object.assign(Q[k]||{},add);else setQ(k,Object.assign(add,{p:+j.price,chg:j.prevClose?(j.price-j.prevClose)/j.prevClose*100:null,via:'Yahoo (พร็อกซี)'}))}).catch(e=>setErr(k,e)))}
+  }
+  if(gN){
+   Q._g=Q._g||{};
+   if(LV.goldSrc==='xaus'||LV.fxSrc==='xaus')jobs.push(xaus().then(j=>{if(LV.goldSrc==='xaus')Q._g.usd=+j.spot_usd_oz;if(LV.fxSrc==='xaus')Q._g.fx=+j.fx_rate}).catch(e=>{setErr('gold',e);setErr('goldth',e)}));
+   if(LV.goldSrc==='proxy')jobs.push(proxyQ('GC=F','1d','5d').then(j=>{Q._g.usd=+j.price}).catch(e=>{setErr('gold',e);setErr('goldth',e)}));
+   if(LV.fxSrc==='proxy')jobs.push(proxyQ('THB=X','1d','5d').then(j=>{Q._g.fx=+j.price}).catch(e=>setErr('fx',e)));
+  }
+  await Promise.all(jobs);
+  if(gN)computeGold();
+ }finally{busy=false}
+ applyLive();setDot();
+}
+function applyLive(){
+ const a=D.asset,k=qkey(a.src,a.sym||a.name),q=k&&Q[k];
+ if(q&&q.p){a.current=q.p;if(a.liveRsi&&rsiCapable(a.src)&&q.closes&&q.closes.length){const cl=q.closes.slice();if(a.src==='crypto')cl[cl.length-1]=q.p;const r=rsiCalc(cl,Math.max(2,num(LV.rsiLen)||14));if(r){a.rsi=+r[0].toFixed(1);a.rsiPrev=+r[1].toFixed(1)}}}
+ D.plan.forEach(p=>{const k=qkey(p.src,p.sym);if(k&&Q[k]&&Q[k].p)p.current=Q[k].p});
+ const put=(sel,v)=>{const el=document.querySelector(sel);if(el&&el!==document.activeElement&&v!=null)el.value=v};
+ put('[data-k="asset.current"]',a.current);put('[data-k="asset.rsi"]',a.rsi);put('[data-k="asset.rsiPrev"]',a.rsiPrev);
+ D.plan.forEach(p=>put(`[data-list="plan"][data-id="${p.id}"][data-f="current"]`,p.current));
+ clearTimeout(updT);updT=setTimeout(()=>{update();if(S.tab==='live')renderBoard()},250);
+}
+function wsSync(){
+ const n=needed();const syms=[...n.keys()].filter(k=>k.startsWith('c:')).map(k=>k.slice(2).toLowerCase());
+ if(LV.goldSrc==='paxg'&&goldNeeded(n))syms.push('paxgusdt');
+ const want=LV.ws&&LV.autoOn&&!document.hidden&&typeof WebSocket!=='undefined'?[...new Set(syms)].sort().join('/'):'';
+ if(want===wsKeys&&(ws||!want))return;
+ if(ws){ws.onclose=null;try{ws.close()}catch(e){}ws=null}
+ wsKeys=want;clearTimeout(wsTimer);if(!want){setDot();return}
+ try{ws=new WebSocket('wss://data-stream.binance.vision/stream?streams='+want.split('/').map(x=>x+'@miniTicker').join('/'))}catch(e){return}
+ ws.onopen=()=>{wsRetry=0;setDot()};
+ ws.onmessage=ev=>{try{const d=JSON.parse(ev.data).data;if(!d||!d.s)return;const o=+d.o,c=+d.c;setQ('c:'+d.s,{p:c,chg:o?(c-o)/o*100:null,via:'Binance สด'});if(d.s==='PAXGUSDT')computeGold();applyLive();setDot()}catch(e){}};
+ ws.onclose=()=>{ws=null;wsKeys='';wsTimer=setTimeout(wsSync,Math.min(30000,2000*2**wsRetry++));setDot()};
+}
+function liveRestart(){clearInterval(liveTimer);if(LV.autoOn)liveTimer=setInterval(()=>{if(!document.hidden)refreshAll()},Math.max(5,num(LV.sec)||15)*1000);wsSync();if(LV.autoOn||needed().size)refreshAll();else setDot()}
+function liveKick(){clearTimeout(kickT);kickT=setTimeout(liveRestart,700)}
+document.addEventListener('visibilitychange',()=>{wsSync();if(!document.hidden&&LV.autoOn)refreshAll()});
+function setDot(st){const d=$('liveDot');if(!d)return;const t=x=>new Date(x).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+ if(st==='load'&&!lastOk){d.className='live-dot load';d.textContent='กำลังดึงราคา…';return}
+ if(!LV.autoOn&&!lastOk){d.className='live-dot';d.textContent='ราคาสด ปิด';return}
+ if(lastOk){d.className='live-dot ok';d.textContent=(ws&&ws.readyState===1?'● สด ':'● ')+t(lastOk)}else if(lastErr){d.className='live-dot err';d.textContent='⚠ '+lastErr}else{d.className='live-dot';d.textContent=LV.autoOn?'ราคาสด รอ':'ราคาสด ปิด'}}
+function rsiCapable(src){return src==='crypto'||src==='th'||src==='yahoo'||(src==='us'&&!!LV.proxy)}
+const needSym=src=>['crypto','us','th','yahoo'].includes(src);
+const SYM_PH={crypto:'BTC หรือ BTCUSDT',us:'AAPL, NVDA',th:'PTT, CPALL',yahoo:'^SET.BK, GC=F, THB=X'};
+const SRC=[['manual','กรอกเอง'],['crypto','คริปโต (Binance สด)'],['us','หุ้นสหรัฐฯ'],['th','หุ้นไทย SET (ล่าช้า ~15 นาที)'],['gold','ทองตลาดโลก USD/ออนซ์'],['goldth','ทองแท่งไทย บาทละ (ประมาณ)'],['yahoo','สัญลักษณ์ Yahoo อื่น ๆ']];
+function liveTxt(src,sym,short){
+ if(!src||src==='manual')return '';const k=qkey(src,sym);if(!k)return 'ใส่สัญลักษณ์เพื่อดึงราคา';const q=Q[k];
+ if(!q||(!q.p&&!q.err))return 'กำลังรอราคา…';
+ const tm=q.t?new Date(q.t).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'';
+ if(q.err&&(!q.p||Date.now()-(q.t||0)>120000))return '⚠ '+q.err+(q.err==='เชื่อมต่อไม่ได้'?' (ถ้าเปิดในลิงก์ Claude ให้เปิดจากไฟล์แทน)':'');
+ return short?`สด ${tm}${q.chg!=null&&isFinite(q.chg)?' '+pct(q.chg):''}`:`สด ${fp(q.p)}${src==='goldth'?' บาท':src==='gold'?' USD':''} · ${q.via||''} · ${tm}${q.chg!=null&&isFinite(q.chg)?' · '+pct(q.chg)+' (24 ชม./วัน)':''}${q.err?' · ⚠ '+q.err:''}`}
+function liveCls(src,sym){const q=Q[qkey(src,sym)];return !q?'':q.err&&!q.p?'bad':q.chg>0?'ok':q.chg<0?'bad':'cy'}
+function renderLiveForm(){
+ const g=k=>({g:k});
+ $('liveF').innerHTML=`<div style="grid-column:1/-1;display:flex;flex-wrap:wrap;gap:4px 20px">${swIn('อัปเดตอัตโนมัติ',g('autoOn'),LV.autoOn)}${swIn('คริปโตแบบสดทุกวินาที (WebSocket)',g('ws'),LV.ws)}</div>`
+ +nIn('ดึงซ้ำทุกกี่วินาที',g('sec'),LV.sec)
+ +sIn('ไทม์เฟรม RSI',g('rsiTf'),LV.rsiTf,[['1h','1 ชั่วโมง'],['4h','4 ชั่วโมง'],['1d','1 วัน'],['1w','1 สัปดาห์']],false)+nIn('รอบ RSI',g('rsiLen'),LV.rsiLen)
+ +`<label class="f full" style="grid-column:1/-1"><span>Finnhub API key (หุ้นสหรัฐฯ สด · สมัครฟรีที่ finnhub.io)</span><input type="password" autocomplete="off" data-g="fhKey" value="${esc(LV.fhKey)}" placeholder="วางคีย์ที่นี่"></label>`
+ +`<label class="f" style="grid-column:1/-1"><span>URL พร็อกซี (หุ้นไทย / Yahoo)</span><input type="text" data-g="proxy" value="${esc(LV.proxy)}" placeholder="https://xxxx.supabase.co/functions/v1/ivp-quote"></label>`
+ +`<label class="f" style="grid-column:1/-1"><span>คีย์พร็อกซี (ถ้าเปิด Verify JWT ใส่ anon key)</span><input type="password" autocomplete="off" data-g="proxyKey" value="${esc(LV.proxyKey)}"></label>`
+ +`<p class="note" style="grid-column:1/-1;margin:0">คีย์เก็บเฉพาะในเครื่องนี้ และไม่ถูกใส่ใน JSON ที่ส่งออก</p>`;
+ $('goldF').innerHTML=sIn('แหล่งราคาทองโลก',g('goldSrc'),LV.goldSrc,[['xaus','สปอต xaus.com (ทุก 60 วิ)'],['paxg','PAXG บน Binance (สดทุกวินาที)'],['proxy','ทองฟิวเจอร์ส GC=F (พร็อกซี)']],false)
+ +sIn('ค่าเงินบาท',g('fxSrc'),LV.fxSrc,[['xaus','xaus.com'],['proxy','Yahoo THB=X (พร็อกซี)'],['manual','กรอกเอง']])+(LV.fxSrc==='manual'?nIn('บาทต่อดอลลาร์',g('fxManual'),LV.fxManual):'')
+ +nIn('ความบริสุทธิ์ %',g('purity'),LV.purity)+nIn('ส่วนปรับ (บาท)',g('premium'),LV.premium)+nIn('รับซื้อต่ำกว่าขายออก (บาท)',g('spread'),LV.spread)
+ +`<div style="grid-column:1/-1">${swIn('ปัดเป็นทีละ 50 บาท',g('round50'),LV.round50)}</div>`;
+}
+function renderBoard(){
+ const b=$('liveBoard');if(!b)return;const q=k=>Q[k]||{};const tm=x=>x?new Date(x).toLocaleTimeString('th-TH'):'';
+ const gold=q('gold'),fx=q('fx'),th=q('goldth');
+ const k1=(t,v,sub,c='')=>`<div class="kpi"><small>${t}</small><strong class="${c}">${v}</strong><em>${sub}</em></div>`;
+ let h=`<div class="lv-big">${k1('ทองตลาดโลก',gold.p?'$'+fp(gold.p)+' /ออนซ์':(gold.err?'⚠ '+esc(gold.err):'–'),gold.p?esc(gold.via||'')+' · '+tm(gold.t)+(gold.chg!=null&&isFinite(gold.chg)?' · '+pct(gold.chg):''):'','gold')}
+ ${k1('ทองแท่งไทย 96.5% (ประมาณ)',th.p?'ขายออก ฿'+fp(th.p):'–',th.p?'รับซื้อ ฿'+fp(th.buy)+' · บาทละ · ประมาณการ ไม่ใช่ราคาประกาศ':esc(th.err||''),'gold')}
+ ${k1('ค่าเงิน USD/THB',fx.p?fp(fx.p)+' บาท':'–',fx.p?esc(fx.via||'')+' · '+tm(fx.t):esc(fx.err||''),'cy')}</div>`;
+ const n=needed();const rows=[...n.keys()].filter(k=>k!=='gold'&&k!=='goldth');
+ h+=rows.length?`<div class="scroll"><table><thead><tr><th>สัญลักษณ์</th><th>ราคา</th><th>เปลี่ยนแปลง</th><th>แหล่ง</th><th>อัปเดต</th></tr></thead><tbody>${rows.map(k=>{const x=q(k);return `<tr><td>${esc(k.replace(/^\w+:/,''))}</td><td>${x.p?fp(x.p):'–'}</td><td class="${cls(x.chg)}">${x.chg!=null&&isFinite(x.chg)?pct(x.chg):''}</td><td>${esc(x.via||'')}</td><td class="${x.err?'neg':''}">${x.err?'⚠ '+esc(x.err):tm(x.t)}</td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">ยังไม่มีสินทรัพย์ที่ตั้งแหล่งราคาสด · ตั้งได้ที่หน้าคำนวณ (ช่อง "แหล่งราคาสด") และในแผน / Watchlist</div>';
+ b.innerHTML=h;
+}
+
+/* ---------- เหตุการณ์ ---------- */
+function onField(e){
+ const el=e.target;
+ if(el.dataset.prof){const p=S.profiles.find(x=>x.id===el.dataset.prof);if(p){p.name=el.value;$('profSel').querySelector(`option[value="${p.id}"]`).textContent=el.value;save()}return}
+ if(!el.dataset.f&&!el.dataset.k&&!el.dataset.g)return;
+ if(e.type==='input'&&(el.type==='checkbox'||el.tagName==='SELECT'))return;
+ if(e.type==='change'&&!(el.type==='checkbox'||el.tagName==='SELECT'))return;
+ if(el.dataset.g){const k=el.dataset.g;LV[k]=el.type==='checkbox'?el.checked:el.type==='number'?num(el.value):el.value.trim();save();
+  if(el.dataset.re||k==='rsiTf'||k==='proxy')renderLiveForm();if(k==='rsiTf'||k==='proxy')renderEditors();
+  if(['purity','premium','spread','round50','fxManual'].includes(k)){computeGold();applyLive();renderBoard()}else liveKick();return}
+ let tgt,key;
+ if(el.dataset.list){tgt=(getP(D,el.dataset.list)||[]).find(x=>x.id===el.dataset.id);key=el.dataset.f}
+ else{const ps=el.dataset.k.split('.');key=ps.pop();tgt=getP(D,ps.join('.'))}
+ if(!tgt)return;
+ tgt[key]=el.type==='checkbox'?el.checked:el.type==='number'?num(el.value):el.value;
+ if(key==='on'){const r=el.closest('.row,.pc');if(r)r.classList.toggle('off',!el.checked)}
+ if(el.dataset.re||(el.dataset.list==='patterns'&&key==='on')||(el.dataset.list==='plan'&&key==='status'))renderEditors();
+ if(key==='src'||key==='sym'||key==='name'||key==='liveRsi')liveKick();
+ update();
+}
+document.addEventListener('input',onField);document.addEventListener('change',onField);
+$('profSel').addEventListener('change',e=>{setActive(e.target.value);renderEditors();update();liveKick();toast('เปลี่ยนเป็นชุด "'+S.profiles.find(p=>p.id===S.active).name+'"')});
+function fillJson(){$('jsonOut').value=JSON.stringify(S,(k,v)=>k==='fhKey'||k==='proxyKey'?undefined:v,1)}
+function showTab(t){if(t==='data')fillJson();if(t==='live')renderBoard();document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));document.querySelectorAll('.tab').forEach(s=>s.classList.toggle('on',s.id==='t-'+t));S.tab=t;save();drawLadder()}
+$('nav').addEventListener('click',e=>{const b=e.target.closest('button');if(b)showTab(b.dataset.tab)});
+$('fileIn').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{$('jsonIn').value=r.result;toast('อ่านไฟล์แล้ว กดปุ่มนำเข้า')};r.readAsText(f)});
+function parseImport(){try{const o=JSON.parse($('jsonIn').value);if(Array.isArray(o.profiles))return o.profiles.filter(p=>p&&p.data).map(p=>({id:uid(),name:String(p.name||'นำเข้า'),data:fixData(p.data)}));if(o.asset)return[{id:uid(),name:'นำเข้า',data:fixData(o)}]}catch(e){}toast('JSON ไม่ถูกต้อง');return null}
+document.addEventListener('click',async e=>{
+ const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act,list=b.dataset.list,id=b.dataset.id;
+ if(a==='add'){getP(D,list).push(NEW[list]());renderEditors();update();return}
+ if(a==='del'){const arr=getP(D,list),i=arr.findIndex(x=>x.id===id);if(i>=0){arr.splice(i,1);renderEditors();update()}return}
+ if(a==='mv'){const arr=getP(D,list),i=arr.findIndex(x=>x.id===id),j=i+(+b.dataset.dir);if(j>=0&&j<arr.length){[arr[i],arr[j]]=[arr[j],arr[i]];renderEditors();update()}return}
+ if(a==='liveNow'){if(!LV.autoOn&&!needed().size&&S.tab!=='live'){toast('ยังไม่ได้ตั้งแหล่งราคาสด');return}xausAt=0;refreshAll().then(()=>{if(S.tab==='live')renderBoard()});wsSync();toast('กำลังดึงราคา…');return}
+ if(a==='goLive'){showTab('live');return}
+ if(a==='useGold'){Object.assign(D.asset,{src:b.dataset.v,name:b.dataset.v==='goldth'?'ทองแท่งไทย':'ทองคำ (XAU)',liveRsi:false});renderEditors();update();liveKick();showTab('calc');toast('ตั้งหน้าคำนวณให้ใช้ราคา'+(b.dataset.v==='goldth'?'ทองไทย':'ทองโลก')+'แล้ว');return}
+ if(a==='copyEdge'){try{await navigator.clipboard.writeText($('edgeCode').textContent.trim());toast('คัดลอกโค้ดแล้ว')}catch(err){toast('คัดลอกไม่ได้ ลากเลือกโค้ดแล้วคัดลอกเอง')}return}
+ if(a==='pfilt'){D.planFilter=b.dataset.v;renderPlan();update();return}
+ if(a==='patSend'){const p=D.patterns.find(x=>x.id===id);if(!p)return;const pc=Object.assign({},p,patCalc(p));p.on=true;
+  if(p.kind==='bull'){if(num(p.breakout))D.asset.entry=+p.breakout;let s=D.stops.find(x=>x.type==='pattern'&&x.value===p.id);if(!s){s=st('pattern',p.id);D.stops.push(s)}s.on=true;
+   if(pc.target){let t=D.tiers.find(x=>x.pat===p.id);if(!t){t=tr('เป้า '+p.name,'price',rnd(pc.target),30,50,'be');t.pat=p.id;D.tiers.push(t)}else{t.value=rnd(pc.target);t.on=true}}
+   toast('ตั้งราคาเข้า เพิ่ม SL และขั้นขายจาก '+p.name+' แล้ว')}
+  else{if(num(p.breakout))D.resistances.push(lv(+p.breakout,'คอ '+p.name));if(!D.sellRules.some(r=>r.type==='pattern_bear'))D.sellRules.push(ru('pattern_bear',null));toast('เพิ่มระดับคอและเงื่อนไขขายจาก '+p.name+' แล้ว')}
+  renderEditors();update();showTab('calc');return}
+ if(a==='patDefaults'){const have=new Set(D.patterns.map(p=>p.shape));const b0=C.E||100;builtinPatterns(b0,null).forEach(p=>{if(!have.has(p.shape))D.patterns.push(p)});renderEditors();update();return}
+ if(a==='dcaFromPos'){if(C.posVal){D.dca.budget=rnd(C.posVal);renderEditors();update()}else toast('หน้าคำนวณยังไม่มีมูลค่าไม้');return}
+ if(a==='planFromCalc'){const x=D.asset;const t=C.tiers.filter(t=>t.t.on&&t.T!==null).pop();D.plan.push(pl(x.name||'ไม่มีชื่อ','crypto',C.E,num(x.current),C.SL!==null?rnd(C.SL):null,t?rnd(t.T):null,C.units?+C.units.toFixed(8):null,'waiting',''));D.planFilter='all';renderEditors();update();toast('เพิ่มเข้าแผนแล้ว');return}
+ if(a==='planToCalc'){const p=D.plan.find(x=>x.id===id);if(!p)return;Object.assign(D.asset,{name:p.sym,entry:num(p.entry),current:num(p.current)});if(num(p.sl)){let s=D.stops.find(x=>x.type==='price'&&x.label==='จากแผน');if(!s){s=st('price',null,true,'จากแผน');D.stops.push(s)}s.value=num(p.sl);s.on=true}renderEditors();update();showTab('calc');toast('โหลด '+p.sym+' แล้ว');return}
+ if(a==='profUse'){setActive(id);renderEditors();update();return}
+ if(a==='profDup'){const p=S.profiles.find(x=>x.id===id);S.profiles.push({id:uid(),name:p.name+' (สำเนา)',data:clone(p.data)});renderProfiles();update();return}
+ if(a==='profDel'){if(S.profiles.length<2){toast('ต้องมีอย่างน้อย 1 ชุด');return}const p=S.profiles.find(x=>x.id===id);if(!await ask(`ลบชุด "${p.name}" ทิ้งถาวร?`))return;S.profiles=S.profiles.filter(x=>x.id!==id);if(S.active===id)setActive(S.profiles[0].id);renderEditors();update();return}
+ if(a==='profNew'){const k=$('newFrom').value;const name=$('newName').value.trim()||$('newFrom').selectedOptions[0].textContent.replace('ตัวอย่าง: ','');const p={id:uid(),name,data:k==='blank'?blank():sample(k)};S.profiles.push(p);$('newName').value='';setActive(p.id);renderEditors();update();toast('สร้างชุด "'+name+'" แล้ว');return}
+ if(a==='profSample'){const k=$('newFrom').value;if(k==='blank'?!await ask('ล้างค่าในชุดนี้ให้ว่าง?'):!await ask('โหลดค่าตัวอย่างทับค่าในชุดนี้?'))return;const p=S.profiles.find(x=>x.id===S.active);p.data=k==='blank'?blank():sample(k);setActive(p.id);renderEditors();update();return}
+ if(a==='mix'){const src=S.profiles.find(x=>x.id===$('mixFrom').value);const ks=[...$('mixChecks').querySelectorAll('input:checked')].map(i=>i.value);if(!src||!ks.length){toast('เลือกชุดต้นทางและส่วนที่ต้องการ');return}ks.forEach(k=>MIXK[k].forEach(f=>{if(src.data[f]!==undefined)D[f]=clone(src.data[f])}));
+  if(ks.includes('stops')&&!ks.includes('patterns'))D.stops.forEach(s=>{if(s.type==='pattern'&&!D.patterns.some(p=>p.id===s.value))s.on=false});
+  renderEditors();update();toast('คัดลอก '+ks.length+' ส่วนจาก "'+src.name+'" แล้ว');return}
+ if(a==='copyJson'){try{await navigator.clipboard.writeText($('jsonOut').value);toast('คัดลอกแล้ว วางเก็บในไฟล์ .json ได้เลย')}catch(err){$('jsonOut').select();toast('คัดลอกอัตโนมัติไม่ได้ ข้อความถูกเลือกไว้แล้ว กดคัดลอกเอง')}return}
+ if(a==='impAdd'){const ps=parseImport();if(!ps||!ps.length)return;S.profiles.push(...ps);setActive(ps[0].id);renderEditors();update();toast('นำเข้า '+ps.length+' ชุดแล้ว');return}
+ if(a==='impReplace'){const ps=parseImport();if(!ps||!ps.length)return;if(!await ask('แทนที่ชุดค่าทั้งหมดด้วยข้อมูลที่นำเข้า?'))return;S.profiles=ps;setActive(ps[0].id);renderEditors();update();toast('แทนที่แล้ว');return}
+});
+
+$('edgeShow').textContent=$('edgeCode').textContent.trim();
+renderEditors();update();showTab(S.tab||'calc');liveRestart();
+}
+</script>
+</body>
+</html>
