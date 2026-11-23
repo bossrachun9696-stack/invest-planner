@@ -756,7 +756,7 @@ function setErr(k,e){Q[k]=Object.assign(Q[k]||{},{err:errMsg(e)});lastErr=errMsg
 async function getJ(url,opt){const r=await fetch(url,Object.assign({cache:'no-store'},opt||{}));if(!r.ok){let t='';try{t=(await r.json()).error||''}catch(e){}throw new Error('HTTP '+r.status+(t?' '+t:''))}return r.json()}
 const BN=['https://data-api.binance.vision/api/v3/','https://api.binance.com/api/v3/'];
 async function bn(path){let er;for(const b of BN){try{return await getJ(b+path)}catch(x){er=x;if(/HTTP 4/.test(x.message))break}}throw er}
-async function proxyQ(sym,interval,range){if(!LV.proxy)throw new Error('ยังไม่ได้ใส่ URL พร็อกซี (แท็บราคาสด)');const u=LV.proxy+(LV.proxy.includes('?')?'&':'?')+'symbol='+encodeURIComponent(sym)+'&interval='+(interval||'1d')+'&range='+(range||'5d');return getJ(u,LV.proxyKey?{headers:{Authorization:'Bearer '+LV.proxyKey,apikey:LV.proxyKey}}:{})}
+async function proxyQ(sym,interval,range){if(!LV.proxy)throw new Error('ยังไม่ได้ใส่ URL พร็อกซี (แท็บราคาสด)');const u=LV.proxy+(LV.proxy.includes('?')?'&':'?')+'symbol='+encodeURIComponent(sym)+'&interval='+(interval||'1d')+'&range='+(range||'5d');const k=LV.proxyKey;return getJ(u,k?{headers:k.startsWith('eyJ')?{Authorization:'Bearer '+k,apikey:k}:{apikey:k}}:{})}
 let xausAt=0,xausJ=null;
 async function xaus(){if(xausJ&&Date.now()-xausAt<60000)return xausJ;const j=await getJ('https://xaus.com/api/v1/spot?currency=THB&unit=oz');xausJ=j;xausAt=Date.now();return j}
 const YTF={'1h':['1h','1mo'],'4h':['1h','3mo'],'1d':['1d','1y'],'1w':['1wk','2y']};
@@ -857,7 +857,7 @@ function renderLiveForm(){
  +sIn('ไทม์เฟรม RSI',g('rsiTf'),LV.rsiTf,[['1h','1 ชั่วโมง'],['4h','4 ชั่วโมง'],['1d','1 วัน'],['1w','1 สัปดาห์']],false)+nIn('รอบ RSI',g('rsiLen'),LV.rsiLen)
  +`<label class="f full" style="grid-column:1/-1"><span>Finnhub API key (หุ้นสหรัฐฯ สด · สมัครฟรีที่ finnhub.io)</span><input type="password" autocomplete="off" data-g="fhKey" value="${esc(LV.fhKey)}" placeholder="วางคีย์ที่นี่"></label>`
  +`<label class="f" style="grid-column:1/-1"><span>URL พร็อกซี (หุ้นไทย / Yahoo)</span><input type="text" data-g="proxy" value="${esc(LV.proxy)}" placeholder="https://xxxx.supabase.co/functions/v1/ivp-quote"></label>`
- +`<label class="f" style="grid-column:1/-1"><span>คีย์พร็อกซี (ถ้าเปิด Verify JWT ใส่ anon key)</span><input type="password" autocomplete="off" data-g="proxyKey" value="${esc(LV.proxyKey)}"></label>`
+ +`<label class="f" style="grid-column:1/-1"><span>คีย์พร็อกซี (publishable key sb_publishable_… หรือ anon key)</span><input type="password" autocomplete="off" data-g="proxyKey" value="${esc(LV.proxyKey)}"></label>`
  +`<p class="note" style="grid-column:1/-1;margin:0">คีย์เก็บเฉพาะในเครื่องนี้ และไม่ถูกใส่ใน JSON ที่ส่งออก</p>`;
  $('goldF').innerHTML=sIn('แหล่งราคาทองโลก',g('goldSrc'),LV.goldSrc,[['xaus','สปอต xaus.com (ทุก 60 วิ)'],['paxg','PAXG บน Binance (สดทุกวินาที)'],['proxy','ทองฟิวเจอร์ส GC=F (พร็อกซี)']],false)
  +sIn('ค่าเงินบาท',g('fxSrc'),LV.fxSrc,[['xaus','xaus.com'],['proxy','Yahoo THB=X (พร็อกซี)'],['manual','กรอกเอง']])+(LV.fxSrc==='manual'?nIn('บาทต่อดอลลาร์',g('fxManual'),LV.fxManual):'')
