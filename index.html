@@ -1288,6 +1288,7 @@ renderEditors();update();showTab(S.tab||'calc');liveRestart();
     const { data: { session } } = await sb.auth.getSession();
     if (!session) { viewLogin(); return; }
     const user = session.user;
+    const pLoad = sb.rpc('ivp_load').then(r => r, e => ({ error: e }));   // เปิดเร็ว: โหลดข้อมูลพร้อมกับตรวจสิทธิ์
     const acc = await sb.rpc('ivp_access');
     if (acc.error && !/Failed to fetch|NetworkError|Load failed/i.test(acc.error.message || '')) { viewLogin(thErr(acc.error)); return; }
     if (acc.data && acc.data.ok === false && acc.data.reason !== 'not_signed_in') { viewLocked(acc.data, user); return; }
@@ -1301,7 +1302,7 @@ renderEditors();update();showTab(S.tab||'calc');liveRestart();
     let fromLegacy = false;
     if (!local && !lsGet(LEGACY + ':moved')) { const leg = parse(lsGet(LEGACY)); if (leg && Array.isArray(leg.profiles) && leg.profiles.length) { local = leg; fromLegacy = true; } }
     viewLoading('กำลังโหลดข้อมูลจากคลาวด์…');
-    const cl = await sb.rpc('ivp_load');
+    const cl = await pLoad;
     if (cl.error) {
       // ดึงไม่ได้ → ใช้ของในเครื่อง แล้วค่อยซิงก์
       if (local) lsSet(window.IVP_KEY, JSON.stringify(local));

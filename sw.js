@@ -1,22 +1,48 @@
-// แผนลงทุน · service worker: ติดตั้งเป็นแอป + เปิดได้ตอนเน็ตไม่ดี
-// เฉพาะไฟล์ของเว็บนี้ (network-first รอ 4 วิ แล้วใช้ cache) · ไม่เก็บ Supabase / ราคาสด / CDN
-const VERSION = 'ivp-v1';
+// ===== แผนลงทุน · service worker (เปิดเร็ว) =====
+// เปิดจากไฟล์ในเครื่องทันที แล้วโหลดตัวใหม่เก็บไว้เบื้องหลัง (เปิดครั้งหน้าได้ตัวใหม่)
+// ข้อมูลจาก Supabase / Google ไม่เก็บ (ดึงสดเสมอ) · ออฟไลน์ = ใช้ไฟล์ในเครื่อง
+// อัปเดตแอป: เปลี่ยนเลข VERSION ทุกครั้งที่อัปโหลดไฟล์ใหม่
+const VERSION = 'ivp-v2';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icons/ivp-192.png', 'icons/ivp-512.png', 'icons/favicon-32.png'];
-self.addEventListener('install', (e) => { e.waitUntil(caches.open(VERSION).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
-self.addEventListener('activate', (e) => {
-  e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith('ivp-') && k !== VERSION).map(k => caches.delete(k)))).then(() => self.clients.claim()));
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(VERSION)
+      .then(c => Promise.all(SHELL.map(u => c.add(new Request(u, { cache: 'reload' })).catch(() => null))))
+      .then(() => self.skipWaiting())
+  );
 });
-self.addEventListener('fetch', (e) => {
-  const u = new URL(e.request.url);
-  if (e.request.method !== 'GET' || u.origin !== location.origin || !u.pathname.startsWith(new URL(self.registration.scope).pathname)) return;
-  e.respondWith((async () => {
-    const c = await caches.open(VERSION);
-    try {
-      const r = await Promise.race([fetch(e.request), new Promise((_, rej) => setTimeout(() => rej(new Error('slow')), 4000))]);
-      if (r && r.ok) c.put(e.request, r.clone());
-      return r;
-    } catch (err) {
-      return (await c.match(e.request)) || (await c.match('index.html')) || Response.error();
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys()
+      .then(keys => Promise.all(keys.filter(k => k.startsWith('ivp-v') && k !== VERSION).map(k => caches.delete(k))))
+      .then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener('fetch', (event) => {
+  const req = event.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  if (url.origin !== self.location.origin) return;
+  if (!url.pathname.startsWith(new URL(self.registration.scope).pathname)) return;
+  const nav = req.mode === 'navigate';
+  const key = nav ? new Request(url.origin + url.pathname) : req;
+
+  event.respondWith((async () => {
+    const cache = await caches.open(VERSION);
+    const hit = await cache.match(key);
+    const net = fetch(req).then((res) => {
+      if (res && res.ok && res.type === 'basic') cache.put(key, res.clone()).catch(() => null);
+      return res;
+    });
+    if (hit) { event.waitUntil(net.catch(() => null)); return hit; }
+    try { return await net; }
+    catch (err) {
+      const any = nav ? (await cache.match('./') || await cache.match('index.html')) : null;
+      if (any) return any;
+      throw err;
     }
   })());
 });
