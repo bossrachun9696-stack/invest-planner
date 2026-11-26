@@ -2,7 +2,7 @@
 // เปิดจากไฟล์ในเครื่องทันที แล้วโหลดตัวใหม่เก็บไว้เบื้องหลัง (เปิดครั้งหน้าได้ตัวใหม่)
 // ข้อมูลจาก Supabase / Google ไม่เก็บ (ดึงสดเสมอ) · ออฟไลน์ = ใช้ไฟล์ในเครื่อง
 // อัปเดตแอป: เปลี่ยนเลข VERSION ทุกครั้งที่อัปโหลดไฟล์ใหม่
-const VERSION = 'ivp-v2';
+const VERSION = 'ivp-v3';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icons/ivp-192.png', 'icons/ivp-512.png', 'icons/favicon-32.png'];
 
 self.addEventListener('install', (event) => {
